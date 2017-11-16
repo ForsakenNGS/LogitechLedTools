@@ -410,7 +410,33 @@ namespace LogitechLedTools
                 ScreenCheckerBar bar = barEntry.Value;
                 bar.Execute(ref bitmap, ref screenArea, ref windowSize);
             }
+            // Dispose bitmap
+            bitmap.Dispose();
         }
 
+        internal void Debug(string name)
+        {
+            // Get window size
+            RECT windowSize = WebinterfaceNative.GetWindowRect((int)hwnd);
+            RECT screenArea = new RECT(windowSize.Right, windowSize.Bottom, windowSize.Left, windowSize.Top);
+            // Calculate required screen area
+            foreach (var pointEntry in points)
+            {
+                ScreenCheckerPoint point = pointEntry.Value;
+                ExpandScreenArea(ref screenArea, windowSize, point.leftPixels, point.leftRatio, point.topPixels, point.topRatio);
+            }
+            foreach (var barEntry in bars)
+            {
+                ScreenCheckerBar bar = barEntry.Value;
+                ExpandScreenArea(ref screenArea, windowSize, bar.leftPixels, bar.leftRatio, bar.topPixels, bar.topRatio);
+                ExpandScreenArea(ref screenArea, windowSize, bar.rightPixels, bar.rightRatio, bar.bottomPixels, bar.bottomRatio);
+            }
+            // Get screen content
+            Bitmap bitmap = WebinterfaceNative.CaptureScreen(hwnd, screenArea.Left, screenArea.Top, screenArea.Right, screenArea.Bottom);
+            // Save for debugging
+            bitmap.Save("debug_" + name + ".png");
+            // Dispose bitmap
+            bitmap.Dispose();
+        }
     }
 }

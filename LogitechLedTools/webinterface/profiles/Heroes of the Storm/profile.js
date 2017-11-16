@@ -14,7 +14,11 @@
                 health: 0,
                 mana: 0,
                 energy: 0,
-                lowHp: false
+                talentAvailable: true,
+                animating: {
+                    lowHp: false,
+                    talent: false
+                }
             },
             lastUpdate: {
                 scene: 0,
@@ -53,6 +57,33 @@
             .AddCondition("G", ">", "R").AddCondition("B", ">", "R").AddCondition("R", "<", 140).AddCondition("G", ">", 120).AddCondition("B", ">", 180);
         checkBars.AddBar("energy", 0, 198 / 1920, 0, 1010 / 1080, 0, 404 / 1920, 0, 1026 / 1080)
             .AddCondition("R", ">", "B").AddCondition("G", ">", "B").AddCondition("R", ">", 140).AddCondition("G", ">", 140);
+        // Talent notification
+        var checkTalent = updater.CreateCheck("game_talent", "Game");
+        checkTalent.AddPoint("P01Blue", 0, 60 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
+        checkTalent.AddPoint("P02Blue", 0, 70 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
+        checkTalent.AddPoint("P03Blue", 0, 80 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
+        checkTalent.AddPoint("P05Blue", 0, 90 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
+        checkTalent.AddPoint("P06Blue", 0, 100 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
+        checkTalent.AddPoint("P07Blue", 0, 110 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
+        checkTalent.AddPoint("P08Blue", 0, 120 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
+        checkTalent.AddPoint("P09Blue", 0, 130 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
+        checkTalent.AddPoint("P10Blue", 0, 140 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
+        checkTalent.AddPoint("P11Blue", 0, 150 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
+        checkTalent.AddPoint("P12Blue", 0, 170 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
+        checkTalent.AddPoint("P13Blue", 0, 170 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
+        checkTalent.AddPoint("P01White", 0, 60 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
+        checkTalent.AddPoint("P02White", 0, 70 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
+        checkTalent.AddPoint("P03White", 0, 80 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
+        checkTalent.AddPoint("P05White", 0, 90 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
+        checkTalent.AddPoint("P06White", 0, 100 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
+        checkTalent.AddPoint("P07White", 0, 110 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
+        checkTalent.AddPoint("P08White", 0, 120 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
+        checkTalent.AddPoint("P09White", 0, 130 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
+        checkTalent.AddPoint("P10White", 0, 140 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
+        checkTalent.AddPoint("P11White", 0, 150 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
+        checkTalent.AddPoint("P12White", 0, 170 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
+        checkTalent.AddPoint("P13White", 0, 170 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
+
     };
 
     // Update active scene (detect if in menu / game / ...)
@@ -87,7 +118,12 @@
         }
         if (scene == "Game") {
             hotsProfile.updateSceneDetail("Default");
-            hotsProfile.updateGameData(updater.GetBarResult("game_bars", "health"), updater.GetBarResult("game_bars", "mana"), updater.GetBarResult("game_bars", "energy"));
+            hotsProfile.updateGameData(
+                updater.GetBarResult("game_bars", "health"), updater.GetBarResult("game_bars", "mana"), updater.GetBarResult("game_bars", "energy"),
+                (updater.GetPointPercentage("game_talent") > 0.3)
+            );
+            //Console_WriteLine("Debug talent: " + updater.GetPointPercentage("game_talent"));
+            //updater.DebugCheck("game_talent");
         }
     }
 
@@ -100,12 +136,14 @@
     }
 
     // Set the game data
-    hotsProfile.updateGameData = function (health, mana, energy) {
-        if ((hotsProfile.data.game.health != health) || (hotsProfile.data.game.mana != mana) || (hotsProfile.data.game.energy != energy)) {
+    hotsProfile.updateGameData = function (health, mana, energy, talentAvailable) {
+        if ((hotsProfile.data.game.health != health) || (hotsProfile.data.game.mana != mana) || (hotsProfile.data.game.energy != energy)
+            || (hotsProfile.data.game.talentAvailable != talentAvailable)) {
             hotsProfile.data.dirty = true;
             hotsProfile.data.game.health = health;
             hotsProfile.data.game.mana = mana;
             hotsProfile.data.game.energy = energy;
+            hotsProfile.data.game.talentAvailable = talentAvailable;
         }
     };
 
@@ -133,15 +171,25 @@
                     // Per key lightning
                     // - Health
                     if ((profileData.game.health > 0.01) && (profileData.game.health < 0.3)) {
-                        if (!profileData.game.lowHp) {
+                        if (!profileData.game.animating.lowHp) {
                             profileData.game.lowHp = true;
                             LogitechKeyboard.SetKeyArea(LogitechKeyboard.GetColor(0, 60, 255), 0, 1, 19, 5);
                             LogitechKeyboard.StartWaveAnimation(LogitechKeyboard.GetColor(255, 0, 0), LogitechKeyboard.GetColor(0, 0, 0), 1000, 2, 0, 1, 19, 5);
                         }
                     } else {
-                        if (profileData.game.lowHp) {
-                            profileData.game.lowHp = false;
+                        if (profileData.game.animating.lowHp) {
+                            profileData.game.animating.lowHp = false;
                             LogitechKeyboard.SetKeyArea(LogitechKeyboard.GetColor(0, 60, 255), 0, 1, 19, 5);
+                        }
+                        if (profileData.game.animating.talent) {
+                            if (!profileData.game.talentAvailable) {
+                                profileData.game.animating.talent = false;
+                                LogitechKeyboard.SetKeyArea(LogitechKeyboard.GetColor(0, 60, 255), 0, 1, 19, 5);
+                            }
+                        } else if (profileData.game.talentAvailable) {
+                            profileData.game.animating.talent = true;
+                            LogitechKeyboard.SetKeyArea(LogitechKeyboard.GetColor(0, 60, 255), 0, 1, 19, 5);
+                            LogitechKeyboard.StartWaveAnimation(LogitechKeyboard.GetColor(255, 255, 255), LogitechKeyboard.GetColor(0, 0, 0), 1000, 4, 0, 1, 19, 5);
                         }
                     }
                     LogitechKeyboard.SetKeyBar(KeyBar_F1_F12, LogitechKeyboard.GetColor(0, 255, 0), LogitechKeyboard.GetColor(255, 0, 0), profileData.game.health * 100);

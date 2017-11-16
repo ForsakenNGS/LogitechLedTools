@@ -69,10 +69,6 @@ namespace LogitechLedTools
             engineUpdateTimer = new Timer(new TimerCallback((o) =>
             {
                 UpdateProfile();
-                if (active)
-                {
-                    engineUpdateTimer.Change(100, -1);
-                }
             }));
             ExecuteResourceFile("LogitechLedTools.base.js");
         }
@@ -354,7 +350,7 @@ namespace LogitechLedTools
                 catch { } // suppress any exceptions
             });
             active = true;
-            engineUpdateTimer.Change(100, -1);
+            engineUpdateTimer.Change(100, 100);
         }
 
         public void Stop()

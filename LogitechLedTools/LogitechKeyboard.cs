@@ -78,7 +78,7 @@ namespace LogitechLedTools
             if ((timeEnd > 0) && (timeEnd < eventTimeMax))
             {
                 // Prevent event batches to overlap
-                timeDelta = eventTimeMax - timeEnd + 100;
+                timeDelta = eventTimeMax - timeEnd + 200;
             }
             foreach (LogitechLightningEvent element in elements.OrderBy(item => item.time))
             {
@@ -351,7 +351,7 @@ namespace LogitechLedTools
                 valueUpper = colors.Length - 1;
             }
             int valueFactor = Convert.ToInt32(value * 100) % 100;
-            return LogitechColor.MixColors(colors[valueUpper], colors[valueLower], valueFactor);
+            return LogitechColor.MixColors(colors[valueUpper], colors[valueLower], valueFactor * 100, false);
         }
 
         public IList<int> GetKeyList(KeyBar layout)
@@ -564,8 +564,8 @@ namespace LogitechLedTools
                     {
                         key = GetKeyByPosition(x, y);
                         rowValue = Convert.ToDouble(bottom - y - top) / Convert.ToDouble(bottom - top + 1) * 2.0;
-                        colorStart = GetColorFade(colValue + rowValue - 0.5, colorBottom, colorMiddle, colorTop);
-                        colorEnd = GetColorFade(colValue + rowValue, colorBottom, colorMiddle, colorTop);
+                        colorStart = GetColorFade(colValue + rowValue - 1.0, colorBottom, colorMiddle, colorTop);
+                        colorEnd = GetColorFade(colValue + rowValue + 1.0, colorBottom, colorMiddle, colorTop);
                         animationEvents[key] = new LogitechLightningEvent(
                             LogitechLightningEvent.Type.PULSE_KEY, colorStart, colorEnd, key, Convert.ToInt32(speed * colSpeed), -1, timeNow + Convert.ToInt32(speed * colSpeed)
                         );

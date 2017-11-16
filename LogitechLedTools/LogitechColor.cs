@@ -35,6 +35,16 @@ namespace LogitechLedTools
 
         public static LogitechColor MixColors(LogitechColor colorA, LogitechColor colorB, int percentageA)
         {
+            return MixColors(colorA, colorB, percentageA, true);
+        }
+
+        public static LogitechColor MixColors(LogitechColor colorA, LogitechColor colorB, float percentageA, bool brighten)
+        {
+            return MixColors(colorA, colorB, (int)percentageA, brighten);
+        }
+
+        public static LogitechColor MixColors(LogitechColor colorA, LogitechColor colorB, int percentageA, bool brighten)
+        {
             if (percentageA > 100)
             {
                 percentageA = 100;
@@ -50,10 +60,13 @@ namespace LogitechLedTools
             maxValue = (colorA.Green > maxValue ? colorA.Green : maxValue);
             mixedColor.Blue = colorA.Blue * percentageA / 100 + colorB.Blue * percentageB / 100;
             maxValue = (colorA.Blue > maxValue ? colorA.Blue : maxValue);
-            // Scale color up to full brightness
-            mixedColor.Red = (maxValue > 0 ? mixedColor.Red * 255 / maxValue : 0);
-            mixedColor.Green = (maxValue > 0 ? mixedColor.Green * 255 / maxValue : 0);
-            mixedColor.Blue = (maxValue > 0 ? mixedColor.Blue * 255 / maxValue : 0);
+            if (brighten)
+            {
+                // Scale color up to full brightness
+                mixedColor.Red = (maxValue > 0 ? mixedColor.Red * 255 / maxValue : 0);
+                mixedColor.Green = (maxValue > 0 ? mixedColor.Green * 255 / maxValue : 0);
+                mixedColor.Blue = (maxValue > 0 ? mixedColor.Blue * 255 / maxValue : 0);
+            }
             return mixedColor;
         }
 

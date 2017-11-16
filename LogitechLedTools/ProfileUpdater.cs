@@ -29,6 +29,11 @@ namespace LogitechLedTools
             return checks[name];
         }
 
+        public void DebugCheck(string name)
+        {
+            GetCheck(name).Debug(name);
+        }
+
         public void Execute()
         {
             Execute(null);
