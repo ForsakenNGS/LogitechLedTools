@@ -1,0 +1,88 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <title>LogitechLedTools</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <nav id="menuMain" class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">LogitechLedTools</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#profileCards" onclick="MenuSelect(this);">
+                        Profiles <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#settings" onclick="MenuSelect(this);">
+                        Settings
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div id="profileCards" class="content-container">
+
+    </div>
+
+    <div id="settings" class="content-container" style="display: none;">
+        <h3>Settings</h3>
+
+        <form id="settingsForm">
+            <div class="form-group">
+                <label for="settingsKeyboardType">Keyboard Type</label>
+                <select id="settingsKeyboardType" class="form-control" name="keyboardType" onchange="UpdateSettings();">
+                    <option value="0">Monochrome</option>
+                    <option value="1">RGB (Full keyboard)</option>
+                    <option value="2">RGB (Per Key)</option>
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+    <script src="/mustache.min.js"></script>
+    <script src="/interface.js"></script>
+    <script id="tplProfileCards" type="x-tmpl-mustache">
+        <h3>Running applications</h3>
+        {{#profiles}}
+        <div class="card" style="width: 20rem;">
+            <img class="card-img-top" src="{{ screenshot }}" alt="Latest Screenshot">
+            <div class="card-body">
+                <h4 class="card-title">{{ name }}</h4>
+                <p class="card-text">
+                {{#active}}
+                    <span class="badge badge-primary">Active</span>
+                    <span class="badge badge-success">{{ profile.scene }}</span>
+                    <br />
+                    {{ &profile.status }}
+                    {{ &profile.debug }}
+                {{/active}}
+                {{^active}}
+                    <span class="badge badge-secondary">Inactive</span>
+                {{/active}}
+                </p>
+            </div>
+        </div>
+        {{/profiles}}
+        {{^profiles}}
+        <h4>No compatible applications running.</h4>
+        {{/profiles}}
+    </script>
+</body>
+</html>
