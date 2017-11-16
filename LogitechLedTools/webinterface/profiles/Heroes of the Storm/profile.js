@@ -172,7 +172,7 @@
                     // - Health
                     if ((profileData.game.health > 0.01) && (profileData.game.health < 0.3)) {
                         if (!profileData.game.animating.lowHp) {
-                            profileData.game.lowHp = true;
+                            profileData.game.animating.lowHp = true;
                             LogitechKeyboard.SetKeyArea(LogitechKeyboard.GetColor(0, 60, 255), 0, 1, 19, 5);
                             LogitechKeyboard.StartWaveAnimation(LogitechKeyboard.GetColor(255, 0, 0), LogitechKeyboard.GetColor(0, 0, 0), 1000, 2, 0, 1, 19, 5);
                         }
