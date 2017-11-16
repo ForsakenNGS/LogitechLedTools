@@ -48,7 +48,7 @@
         // HP and MP bar
         var checkBars = updater.CreateCheck("game_bars", "Game");
         checkBars.AddBar("health", 0, 208 / 1920, 0, 992 / 1080, 0, 414 / 1920, 0, 1010 / 1080)
-            .AddCondition("G", ">", "R").AddCondition("G", ">", "B").AddCondition("R", "<", 160).AddCondition("G", ">", 140);
+            .AddCondition("G", ">", "R").AddCondition("G", ">", "B").AddCondition("R", "<", 160).AddCondition("G", ">", 180);
         checkBars.AddBar("mana", 0, 198 / 1920, 0, 1010 / 1080, 0, 404 / 1920, 0, 1026 / 1080)
             .AddCondition("G", ">", "R").AddCondition("B", ">", "R").AddCondition("R", "<", 140).AddCondition("G", ">", 120).AddCondition("B", ">", 180);
         checkBars.AddBar("energy", 0, 198 / 1920, 0, 1010 / 1080, 0, 404 / 1920, 0, 1026 / 1080)
@@ -135,7 +135,7 @@
                     if ((profileData.game.health > 0.01) && (profileData.game.health < 0.3)) {
                         if (!profileData.game.lowHp) {
                             profileData.game.lowHp = true;
-                            LogitechKeyboard.SaveKeyArea(0, 1, 19, 5);
+                            LogitechKeyboard.SetKeyArea(LogitechKeyboard.GetColor(0, 60, 255), 0, 1, 19, 5);
                             LogitechKeyboard.StartWaveAnimation(LogitechKeyboard.GetColor(255, 0, 0), LogitechKeyboard.GetColor(0, 0, 0), 1000, 2, 0, 1, 19, 5);
                         }
                     } else {
@@ -145,12 +145,10 @@
                         }
                     }
                     LogitechKeyboard.SetKeyBar(KeyBar_F1_F12, LogitechKeyboard.GetColor(0, 255, 0), LogitechKeyboard.GetColor(255, 0, 0), profileData.game.health * 100);
-                    // - Mana
+                    // - Mana / Energy
                     if (profileData.game.mana > 0.01) {
                         LogitechKeyboard.SetKeyBar(KeyBar_NUMPAD_BLOCK_A, LogitechKeyboard.GetColor(0, 0, 255), LogitechKeyboard.GetColor(0, 0, 0), profileData.game.mana * 100);
-                    }
-                    // - Energy
-                    if (profileData.game.energy > 0.01) {
+                    } else if (profileData.game.energy > 0.01) {
                         LogitechKeyboard.SetKeyBar(KeyBar_NUMPAD_BLOCK_A, LogitechKeyboard.GetColor(255, 255, 0), LogitechKeyboard.GetColor(0, 0, 0), profileData.game.energy * 100);
                     }
                 } else {

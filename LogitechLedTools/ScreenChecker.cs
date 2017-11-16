@@ -242,6 +242,19 @@ namespace LogitechLedTools
             return true;
         }
 
+        private bool CheckColumn(ref Bitmap bitmap, int x, int yMin, int yMax)
+        {
+            for (int y = yMin; y < yMax; y++)
+            {
+                var color = bitmap.GetPixel(x, y);
+                if (CheckConditions(color))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public void Execute(ref Bitmap bitmap, ref RECT screenArea, ref RECT windowSize)
         {
             RECT barArea = new RECT(
@@ -251,34 +264,20 @@ namespace LogitechLedTools
                 Convert.ToInt32(Math.Round(bottomRatio * windowSize.Bottom)) + bottomPixels - screenArea.Top
                 );
             int x, y;
-            bool match;
             if (backwardScan)
             {
                 for (x = barArea.Right - 1; x >= barArea.Left; x--)
                 {
-                    for (y = barArea.Top; y < barArea.Bottom; y++)
+                    if (CheckColumn(ref bitmap, x, barArea.Top, barArea.Bottom))
                     {
-                        var color = bitmap.GetPixel(x, y);
-                        if (CheckConditions(color))
-                        {
-                            break;
-                        }
+                        break;
                     }
                 }
             } else
             {
                 for (x = barArea.Left; x < barArea.Right; x++)
                 {
-                    match = false;
-                    for (y = barArea.Top; y < barArea.Bottom; y++)
-                    {
-                        var color = bitmap.GetPixel(x, y);
-                        if (CheckConditions(color))
-                        {
-                            match = true;
-                        }
-                    }
-                    if (!match)
+                    if (!CheckColumn(ref bitmap, x, barArea.Top, barArea.Bottom))
                     {
                         x--;
                         break;
