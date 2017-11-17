@@ -134,7 +134,7 @@
                 if (profileData.detail == "Searching") {
                     LogitechKeyboard.StartWaveAnimation(LogitechKeyboard.GetColor(255, 255, 0), LogitechKeyboard.GetColor(0, 0, 0), 2000, 2);
                 } else {
-                    LogitechKeyboard.SetGlobalColor(LogitechKeyboard.GetColor(255, 255, 0));
+                    LogitechKeyboard.SetLighting(LogitechKeyboard.GetColor(255, 255, 0));
                 }
             } else if (profileData.scene == "Game") {
                 // Generate status html for webinterface
@@ -145,10 +145,10 @@
                 if (profileData.game.ultimateReady) {
                     LogitechKeyboard.StartWaveAnimation(LogitechKeyboard.GetColor(0, 0, 255), LogitechKeyboard.GetColor(255, 255, 0), 1000, 1);
                 } else {
-                    LogitechKeyboard.SetGlobalColor(LogitechKeyboard.GetColor(255, 255, 0));
+                    LogitechKeyboard.SetLighting(LogitechKeyboard.GetColor(255, 255, 0));
                 }
             } else {
-                LogitechKeyboard.SetGlobalColor(LogitechKeyboard.GetColor(255, 0, 0));
+                LogitechKeyboard.SetLighting(LogitechKeyboard.GetColor(255, 0, 0));
             }
             profileData.dirty = false;
             profileData.status = statusHtml;
