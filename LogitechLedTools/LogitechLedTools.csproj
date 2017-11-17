@@ -55,6 +55,7 @@
     <Compile Include="LogitechGSDK.cs" />
     <None Include="LogitechKeyboard.cs.bak" />
     <Compile Include="LogitechKeyboard.cs" />
+    <Compile Include="LogWriter.cs" />
     <Compile Include="ProfileUpdater.cs" />
     <Compile Include="RECT.cs" />
     <Compile Include="ScreenChecker.cs" />

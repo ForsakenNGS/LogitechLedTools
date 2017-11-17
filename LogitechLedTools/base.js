@@ -131,9 +131,12 @@ function GetActiveProfile() {
     // Update active profile
     if ((profileActive != null) && (windowActive == windowsByName[profileActive])) {
         if (!profileInitialized) {
+            Log.Log("Initializing profile: "+profileActive+"...", LogLevel_DEBUG);
             profileInitialized = true;
             RegisterProfile();
+            Log.Log("Updating profile screenshot: " + profileActive + "...", LogLevel_DEBUG);
             UpdateScreenshot(windowActive, profileActive + ".jpg");
+            Log.Log("Profile activated: " + profileActive + "!", LogLevel_DEBUG);
         }
         profiles[profileActive].hwnd = windowActive;
         return profiles[profileActive];

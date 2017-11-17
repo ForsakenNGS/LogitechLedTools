@@ -34,6 +34,17 @@ namespace LogitechLedTools
             this.time = time;
         }
 
+        public LogitechLightningEvent(Type type, LogitechColor colorStart, keyboardNames key, long time)
+        {
+            this.type = type;
+            this.colorStart = colorStart;
+            this.colorEnd = colorStart;
+            this.key = key;
+            this.duration = 0;
+            this.interval = 0;
+            this.time = time;
+        }
+
         public LogitechLightningEvent(Type type, LogitechColor colorStart, keyboardNames key)
         {
             this.type = type;
@@ -43,6 +54,17 @@ namespace LogitechLedTools
             this.duration = 0;
             this.interval = 0;
             this.time = 0;
+        }
+
+        public LogitechLightningEvent(Type type, LogitechColor colorStart, long time)
+        {
+            this.type = type;
+            this.colorStart = colorStart;
+            this.colorEnd = colorStart;
+            this.key = 0;
+            this.duration = 0;
+            this.interval = 0;
+            this.time = time;
         }
 
         public LogitechLightningEvent(Type type, LogitechColor colorStart)

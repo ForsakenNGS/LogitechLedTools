@@ -23,24 +23,31 @@ namespace LogitechLedTools
         private Timer                   engineUpdateTimer;
         private Stopwatch               engineClock;
         private LogitechKeyboard        keyboard;
-        private EventLog                log;
+        private Timer                   keyboardUpdateTimer;
+        private LogWriter               log;
         private bool                    active;
         private ProfileUpdater          updater;
 
-        public WebinterfaceHttp(EventLog logger) 
+        public WebinterfaceHttp() 
         {
             _listener.Prefixes.Add("http://localhost:8042/");
-            log = logger;
+            log = new LogWriter("LogitechLedTools.log");
             active = false;
             updater = null;
+            log.Log("Init logitech LED library...", LogWriter.Level.DEBUG);
             if (!LogitechGSDK.LogiLedInit())
             {
                 throw new Exception("Failed to initialize Logitech LED library");
             }
             keyboard = new LogitechKeyboard();
+            log.Log("Init javascript library library...", LogWriter.Level.DEBUG);
             engine = new Jint.Engine();
-            engine.SetValue("Console_WriteLine", new Action<object>(Console.WriteLine));
-            engine.SetValue("Logging", log);
+            engine.SetValue("Log", log);
+            engine.SetValue("LogLevel_DEBUG", LogWriter.Level.DEBUG);
+            engine.SetValue("LogLevel_INFO", LogWriter.Level.INFO);
+            engine.SetValue("LogLevel_WARNING", LogWriter.Level.WARNING);
+            engine.SetValue("LogLevel_ERROR", LogWriter.Level.ERROR);
+            engine.SetValue("LogLevel_FATAL", LogWriter.Level.FATAL);
             engine.SetValue("LogitechKeyboard", keyboard);
             engine.SetValue("LogitechKeyboardType_MonochromeFull", LogitechKeyboardType.MonochromeFull);
             engine.SetValue("LogitechKeyboardType_ColoredFull", LogitechKeyboardType.ColoredFull);
@@ -64,13 +71,19 @@ namespace LogitechLedTools
             engine.SetValue("LoadProfileDisplay", new Func<string, Jint.Native.JsValue>(LoadProfileDisplay));
             engine.SetValue("ConfigJsonRead", new Func<string>(ConfigJsonRead));
             engine.SetValue("ConfigJsonWrite", new Action<string>(ConfigJsonWrite));
+            log.Log("Starting update routine...", LogWriter.Level.DEBUG);
             engineClock = new Stopwatch();
             engineClock.Start();
             engineUpdateTimer = new Timer(new TimerCallback((o) =>
             {
                 UpdateProfile();
             }));
+            keyboardUpdateTimer = new Timer(new TimerCallback((o) =>
+            {
+                keyboard.UpdateLightning();
+            }));
             ExecuteResourceFile("LogitechLedTools.base.js");
+            log.Log("Startup routine successful!", LogWriter.Level.DEBUG);
         }
 
         public string ConfigJsonRead()
@@ -169,7 +182,6 @@ namespace LogitechLedTools
                 }
             }
             // Do generic updates
-            keyboard.UpdateLightning();
             HandleScriptFunction("GetWindows");
         }
 
@@ -178,7 +190,7 @@ namespace LogitechLedTools
             return engineClock.ElapsedMilliseconds;
         }
 
-        private void HandleRequest(HttpListenerRequest request, HttpListenerResponse response, EventLog log)
+        private void HandleRequest(HttpListenerRequest request, HttpListenerResponse response)
         {
             //log.WriteEntry("Request: '" + request.Url.AbsolutePath + "'");
             try
@@ -268,7 +280,7 @@ namespace LogitechLedTools
             }
             catch (Jint.Runtime.JavaScriptException exception)
             {
-                log.WriteEntry("JS Exception: " + exception.ToString());
+                log.Log("JS Exception: " + exception.ToString(), LogWriter.Level.WARNING);
                 throw exception;
             }
         }
@@ -336,7 +348,7 @@ namespace LogitechLedTools
                             var ctx = c as HttpListenerContext;
                             try
                             {
-                                HandleRequest(ctx.Request, ctx.Response, log);
+                                HandleRequest(ctx.Request, ctx.Response);
                             }
                             catch { } // suppress any exceptions
                             finally
@@ -350,7 +362,8 @@ namespace LogitechLedTools
                 catch { } // suppress any exceptions
             });
             active = true;
-            engineUpdateTimer.Change(100, 100);
+            engineUpdateTimer.Change(250, 250);
+            keyboardUpdateTimer.Change(50, 50);
         }
 
         public void Stop()
@@ -358,6 +371,7 @@ namespace LogitechLedTools
             HandleScriptFunction("SaveConfig");
             active = false;
             engineUpdateTimer.Change(-1, -1);
+            keyboardUpdateTimer.Change(-1, -1);
             _listener.Stop();
         }
     }

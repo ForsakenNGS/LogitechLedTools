@@ -36,7 +36,7 @@ namespace LogitechLedTools
             eventlog = new EventLog();
             eventlog.Source = "LogitechLedTools";
             // Init webinterface
-            webinterface = new WebinterfaceHttp(eventlog);
+            webinterface = new WebinterfaceHttp();
             webinterface.Start();
             // Init context menu
             trayMenu = new ContextMenu();

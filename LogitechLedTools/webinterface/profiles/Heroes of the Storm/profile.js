@@ -151,12 +151,13 @@
     hotsProfile.display = function (profileData) {
         //LogitechKeyboard.Clear();
         if (profileData.dirty) {
+            var timeNow = GetEngineClock();
             var statusHtml = "";
             if (profileData.scene == "Menu") {
                 if (profileData.detail == "Searching") {
-                    LogitechKeyboard.StartWaveAnimation(LogitechKeyboard.GetColor(255, 255, 0), LogitechKeyboard.GetColor(0, 0, 0), 2000, 2);
+                    LogitechKeyboard.StartWaveAnimation(LogitechKeyboard.GetColor(0, 0, 0), LogitechKeyboard.GetColor(255, 255, 0), 1000, 2);
                 } else {
-                    LogitechKeyboard.SetGlobalColor(LogitechKeyboard.GetColor(255, 255, 0));
+                    LogitechKeyboard.SetLighting(LogitechKeyboard.GetColor(255, 255, 0));
                 }
             } else if (profileData.scene == "Game") {
                 // Generate status html for webinterface
@@ -174,7 +175,7 @@
                         if (!profileData.game.animating.lowHp) {
                             profileData.game.animating.lowHp = true;
                             LogitechKeyboard.SetKeyArea(LogitechKeyboard.GetColor(0, 60, 255), 0, 1, 19, 5);
-                            LogitechKeyboard.StartWaveAnimation(LogitechKeyboard.GetColor(255, 0, 0), LogitechKeyboard.GetColor(0, 0, 0), 1000, 2, 0, 1, 19, 5);
+                            LogitechKeyboard.StartWaveAnimation(LogitechKeyboard.GetColor(0, 0, 0), LogitechKeyboard.GetColor(255, 0, 0), 1000, 2, 0, 1, 19, 5);
                         }
                     } else {
                         if (profileData.game.animating.lowHp) {
@@ -202,20 +203,30 @@
                 } else {
                     // Global lightning
                     if ((profileData.game.health > 0.01) && (profileData.game.health < 0.3)) {
-                        if (!profileData.game.lowHp) {
-                            profileData.game.lowHp = true;
+                        if (!profileData.game.animating.lowHp) {
+                            profileData.game.animating.lowHp = true;
                             LogitechKeyboard.StartWaveAnimation(LogitechKeyboard.GetColor(0, 0, 0), LogitechKeyboard.GetColor(255, 0, 0), 300);
                         }
                     } else {
-                        profileData.game.lowHp = false;
-                        LogitechKeyboard.SetGlobalColor(LogitechKeyboard.GetColorFade(
-                            profileData.game.health * 2,
-                            LogitechKeyboard.GetColor(255, 0, 0), LogitechKeyboard.GetColor(255, 255, 0), LogitechKeyboard.GetColor(0, 255, 0)
-                        ))
+                        profileData.game.animating.lowHp = false;
+                        if (!profileData.game.animating.talent) {
+                            if (profileData.game.talentAvailable) {
+                                profileData.game.animating.talent = timeNow + 5000;
+                                LogitechKeyboard.PulseLighting(LogitechKeyboard.GetColor(0, 0, 0), LogitechKeyboard.GetColor(80, 80, 255), 5000, 250);
+                            }
+                        } else if (!profileData.game.talentAvailable) {
+                            profileData.game.animating.talent = false;
+                        }
+                        if (!profileData.game.animating.talent || (profileData.game.animating.talent < timeNow)) {
+                            LogitechKeyboard.SetLighting(LogitechKeyboard.GetColorFade(
+                                profileData.game.health * 2,
+                                LogitechKeyboard.GetColor(255, 0, 0), LogitechKeyboard.GetColor(255, 255, 0), LogitechKeyboard.GetColor(0, 255, 0)
+                            ));
+                        }
                     }
                 }
             } else {
-                LogitechKeyboard.SetGlobalColor(LogitechKeyboard.GetColor(255, 0, 0));
+                LogitechKeyboard.SetLighting(LogitechKeyboard.GetColor(255, 0, 0));
             }
             profileData.dirty = false;
             profileData.status = statusHtml;

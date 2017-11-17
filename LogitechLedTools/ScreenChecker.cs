@@ -263,7 +263,7 @@ namespace LogitechLedTools
                 Convert.ToInt32(Math.Round(rightRatio * windowSize.Right)) + rightPixels - screenArea.Left,
                 Convert.ToInt32(Math.Round(bottomRatio * windowSize.Bottom)) + bottomPixels - screenArea.Top
                 );
-            int x, y;
+            int x;
             if (backwardScan)
             {
                 for (x = barArea.Right - 1; x >= barArea.Left; x--)
@@ -390,6 +390,10 @@ namespace LogitechLedTools
             }
             // Get screen content
             Bitmap bitmap = WebinterfaceNative.CaptureScreen(hwnd, screenArea.Left, screenArea.Top, screenArea.Right, screenArea.Bottom);
+            if (bitmap == null)
+            {
+                return;
+            }
             // Check points
             foreach (var pointEntry in points)
             {
@@ -433,6 +437,10 @@ namespace LogitechLedTools
             }
             // Get screen content
             Bitmap bitmap = WebinterfaceNative.CaptureScreen(hwnd, screenArea.Left, screenArea.Top, screenArea.Right, screenArea.Bottom);
+            if (bitmap == null)
+            {
+                return;
+            }
             // Save for debugging
             bitmap.Save("debug_" + name + ".png");
             // Dispose bitmap

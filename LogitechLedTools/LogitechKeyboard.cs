@@ -24,13 +24,27 @@ namespace LogitechLedTools
         NUMPAD_BLOCK_A = 20, NUMPAD_BLOCK_B = 21,
     };
 
+    public class LogitechKeyStatus
+    {
+        public bool effectActive { get; set; }
+        public long lastEvent { get; set; }
+
+        public LogitechKeyStatus()
+        {
+            effectActive = false;
+            lastEvent = 0;
+        }
+    }
+
     public class LogitechKeyboard
     {
+        private const long EventPadding = 60;
+
         private LogitechKeyboardType keyboardType;
-        private bool effectActive;
-        private IDictionary<keyboardNames, bool> effectActiveKey;
+        private LogitechKeyStatus statusGlobal;
+        private IDictionary<keyboardNames, LogitechKeyStatus> statusKey;
         private ConcurrentQueue<LogitechLightningEvent> eventQueue;
-        private long eventTimeMax;
+
         private Stopwatch timerEvents;
         private IDictionary<KeyBar, IList<int>> keyBarList;
         private keyboardNames[] keyGrid;
@@ -48,15 +62,14 @@ namespace LogitechLedTools
         public LogitechKeyboard()
         {
             keyboardType = LogitechKeyboardType.PerKey;
-            effectActive = false;
-            effectActiveKey = new Dictionary<keyboardNames, bool>();
+            statusGlobal = new LogitechKeyStatus();
+            statusKey = new Dictionary<keyboardNames, LogitechKeyStatus>();
             Array keys = Enum.GetValues(typeof(keyboardNames));
             foreach (keyboardNames key in keys)
             {
-                effectActiveKey[key] = false;
+                statusKey[key] = new LogitechKeyStatus();
             }
             eventQueue = new ConcurrentQueue<LogitechLightningEvent>();
-            eventTimeMax = 0;
             timerEvents = Stopwatch.StartNew();
             keyBarList = new Dictionary<KeyBar, IList<int>>();
             InitKeyGrid();
@@ -64,9 +77,22 @@ namespace LogitechLedTools
 
         private void AddEvent(LogitechLightningEvent element)
         {
-            if (element.time > eventTimeMax)
+            AddEvent(element, true);
+        }
+
+        private void AddEvent(LogitechLightningEvent element, bool queue)
+        {
+            if (queue)
             {
-                eventTimeMax = element.time;
+                element.time = GetNextQueueTime(element.key);
+            }
+            if ((element.key == 0) && (element.time > statusGlobal.lastEvent))
+            {
+                statusGlobal.lastEvent = element.time;
+            }
+            if ((element.key > 0) && (element.time > statusKey[element.key].lastEvent))
+            {
+                statusKey[element.key].lastEvent = element.time;
             }
             eventQueue.Enqueue(element);
         }
@@ -74,101 +100,131 @@ namespace LogitechLedTools
         private void AddEvents(ICollection<LogitechLightningEvent> elements)
         {
             long timeEnd = elements.Max(item => item.time);
+            long timeQueue = GetNextQueueTime();
             long timeDelta = 0;
-            if ((timeEnd > 0) && (timeEnd < eventTimeMax))
+            if ((timeEnd > 0) && (timeEnd < timeQueue))
             {
                 // Prevent event batches to overlap
-                timeDelta = eventTimeMax - timeEnd + 200;
+                timeDelta = timeQueue - timeEnd + 200;
             }
             foreach (LogitechLightningEvent element in elements.OrderBy(item => item.time))
             {
                 element.time += timeDelta;
-                AddEvent(element);
+                AddEvent(element, false);
             }
         }
 
-        public void Clear()
+        public long GetNextQueueTime()
+        {
+            if (statusGlobal.lastEvent > timerEvents.ElapsedMilliseconds)
+            {
+                return statusGlobal.lastEvent + EventPadding;
+            } else
+            {
+                return timerEvents.ElapsedMilliseconds;
+            }
+        }
+
+        public long GetNextQueueTime(keyboardNames key)
+        {
+            if ((key == 0) || (statusGlobal.lastEvent > (statusKey[key].lastEvent + EventPadding)))
+            {
+                return GetNextQueueTime();
+            }
+            else if (statusKey[key].lastEvent > timerEvents.ElapsedMilliseconds)
+            {
+                return statusKey[key].lastEvent + EventPadding;
+            }
+            else
+            {
+                return timerEvents.ElapsedMilliseconds;
+            }
+        }
+
+        public void _Clear()
         {
             eventQueue = new ConcurrentQueue<LogitechLightningEvent>();
             timerEvents = Stopwatch.StartNew();
         }
 
-        private void ClearEffects()
+        private void _ClearEffects()
         {
-            if (effectActive)
+            if (statusGlobal.effectActive)
             {
                 LogitechGSDK.LogiLedStopEffects();
-                effectActive = false;
+                statusGlobal.effectActive = false;
             }
         }
 
-        private void ClearEffectsOnKey(keyboardNames key)
+        private void _ClearEffectsOnKey(keyboardNames key)
         {
-            if (effectActiveKey[key])
+            if (statusKey[key].effectActive)
             {
                 LogitechGSDK.LogiLedStopEffectsOnKey(key);
-                effectActiveKey[key] = false;
+                statusKey[key].effectActive = false;
             }
         }
 
-        private void SetLighting(int red, int green, int blue)
+        private void _SetLighting(int red, int green, int blue)
         {
-            ClearEffects();
+            _ClearEffects();
             LogitechGSDK.LogiLedSetLighting(red, green, blue);
         }
 
-        private void SetLightingOnKey(keyboardNames key, int red, int green, int blue)
+        private void _SetLightingOnKey(keyboardNames key, int red, int green, int blue)
         {
-            ClearEffectsOnKey(key);
+            _ClearEffectsOnKey(key);
             LogitechGSDK.LogiLedSetLightingForKeyWithKeyName(key, red, green, blue);
         }
 
-        private void FlashLighting(int red, int green, int blue, int duration, int interval)
+        private void _FlashLighting(int red, int green, int blue, int duration, int interval)
         {
-            ClearEffects();
+            _ClearEffects();
             LogitechGSDK.LogiLedFlashLighting(red, green, blue, duration, interval);
-            effectActive = true;
+            statusGlobal.effectActive = true;
         }
 
-        private void FlashLightingOnKey(keyboardNames key, int red, int green, int blue, int duration, int interval)
+        private void _FlashLightingOnKey(keyboardNames key, int red, int green, int blue, int duration, int interval)
         {
-            ClearEffectsOnKey(key);
+            _ClearEffectsOnKey(key);
             LogitechGSDK.LogiLedFlashSingleKey(key, red, green, blue, duration, interval);
-            effectActiveKey[key] = true;
+            statusKey[key].effectActive = true;
+            statusGlobal.effectActive = true;
         }
 
-        private void PulseLighting(int red, int green, int blue, int duration, int interval)
+        private void _PulseLighting(int red, int green, int blue, int duration, int interval)
         {
-            ClearEffects();
+            _ClearEffects();
             LogitechGSDK.LogiLedPulseLighting(red, green, blue, duration, interval);
-            effectActive = true;
+            statusGlobal.effectActive = true;
         }
 
-        private void PulseLightingOnKey(keyboardNames key, int redStart, int greenStart, int blueStart, int redEnd, int greenEnd, int blueEnd, int duration, bool isInfinite)
+        private void _PulseLightingOnKey(keyboardNames key, int redStart, int greenStart, int blueStart, int redEnd, int greenEnd, int blueEnd, int duration, bool isInfinite)
         {
-            ClearEffectsOnKey(key);
+            _ClearEffectsOnKey(key);
             LogitechGSDK.LogiLedPulseSingleKey(key, redStart, greenStart, blueStart, redEnd, greenEnd, blueEnd, duration, isInfinite);
-            effectActiveKey[key] = true;
+            statusKey[key].effectActive = true;
+            statusGlobal.effectActive = true;
         }
 
-        private void RestoreLighting()
+        private void _RestoreLighting()
         {
-            ClearEffects();
+            _ClearEffects();
             LogitechGSDK.LogiLedRestoreLighting();
         }
 
-        private void RestoreLightingOnKey(keyboardNames key)
+        private void _RestoreLightingOnKey(keyboardNames key)
         {
-            ClearEffectsOnKey(key);
+            _ClearEffectsOnKey(key);
             LogitechGSDK.LogiLedRestoreLightingForKey(key);
         }
 
-        private void SaveCurrentLighting()
+        private void _SaveCurrentLighting()
         {
             LogitechGSDK.LogiLedSaveCurrentLighting();
         }
 
-        private void SaveCurrentLightingOnKey(keyboardNames key)
+        private void _SaveCurrentLightingOnKey(keyboardNames key)
         {
             LogitechGSDK.LogiLedSaveLightingForKey(key);
         }
@@ -198,33 +254,32 @@ namespace LogitechLedTools
                     switch (element.type)
                     {
                         case LogitechLightningEvent.Type.CLEAR_EFFECTS:
-                            ClearEffects();
+                            _ClearEffects();
                             break;
                         case LogitechLightningEvent.Type.CLEAR_EFFECTS_KEY:
-                            ClearEffectsOnKey(element.key);
+                            _ClearEffectsOnKey(element.key);
                             break;
                         case LogitechLightningEvent.Type.SET_GLOBAL:
-                            SetLighting(element.colorStart.getRedPercentage(), element.colorStart.getGreenPercentage(), element.colorStart.getBluePercentage());
+                            _SetLighting(element.colorStart.getRedPercentage(), element.colorStart.getGreenPercentage(), element.colorStart.getBluePercentage());
                             break;
                         case LogitechLightningEvent.Type.FLASH_GLOBAL:
-                            SetLighting(element.colorStart.getRedPercentage(), element.colorStart.getGreenPercentage(), element.colorStart.getBluePercentage());
-                            FlashLighting(
-                                element.colorEnd.getRedPercentage(), element.colorEnd.getGreenPercentage(), element.colorEnd.getBluePercentage(),
+                            _FlashLighting(
+                                element.colorStart.getRedPercentage(), element.colorStart.getGreenPercentage(), element.colorStart.getBluePercentage(),
                                 (element.duration < 0 ? LogitechGSDK.LOGI_LED_DURATION_INFINITE : element.duration), element.interval
                             );
                             break;
                         case LogitechLightningEvent.Type.PULSE_GLOBAL:
-                            SetLighting(element.colorStart.getRedPercentage(), element.colorStart.getGreenPercentage(), element.colorStart.getBluePercentage());
-                            PulseLighting(
+                            _SetLighting(element.colorStart.getRedPercentage(), element.colorStart.getGreenPercentage(), element.colorStart.getBluePercentage());
+                            _PulseLighting(
                                 element.colorEnd.getRedPercentage(), element.colorEnd.getGreenPercentage(), element.colorEnd.getBluePercentage(), 
                                 (element.duration < 0 ? LogitechGSDK.LOGI_LED_DURATION_INFINITE : element.duration), element.interval / 10
                             );
                             break;
                         case LogitechLightningEvent.Type.RESTORE_GLOBAL:
-                            RestoreLighting();
+                            _RestoreLighting();
                             break;
                         case LogitechLightningEvent.Type.SAVE_GLOBAL:
-                            SaveCurrentLighting();
+                            _SaveCurrentLighting();
                             break;
                     }
                     break;
@@ -232,40 +287,37 @@ namespace LogitechLedTools
                     switch (element.type)
                     {
                         case LogitechLightningEvent.Type.CLEAR_EFFECTS:
-                            ClearEffects();
+                            _ClearEffects();
                             break;
                         case LogitechLightningEvent.Type.CLEAR_EFFECTS_KEY:
-                            ClearEffectsOnKey(element.key);
+                            _ClearEffectsOnKey(element.key);
                             break;
                         case LogitechLightningEvent.Type.SET_KEY:
-                            SetLightingOnKey(element.key, element.colorStart.getRedPercentage(), element.colorStart.getGreenPercentage(), element.colorStart.getBluePercentage());
+                            _SetLightingOnKey(element.key, element.colorStart.getRedPercentage(), element.colorStart.getGreenPercentage(), element.colorStart.getBluePercentage());
                             break;
                         case LogitechLightningEvent.Type.FLASH_KEY:
-                            SetLightingOnKey(element.key, element.colorStart.getRedPercentage(), element.colorStart.getGreenPercentage(), element.colorStart.getBluePercentage());
-                            FlashLightingOnKey(element.key, element.colorEnd.getRedPercentage(), element.colorEnd.getGreenPercentage(), element.colorEnd.getBluePercentage(), element.duration, element.interval);
-                            effectActive = true;
+                            _FlashLightingOnKey(element.key, element.colorStart.getRedPercentage(), element.colorStart.getGreenPercentage(), element.colorStart.getBluePercentage(), element.duration, element.interval);
                             break;
                         case LogitechLightningEvent.Type.PULSE_KEY:
-                            PulseLightingOnKey(
+                            _PulseLightingOnKey(
                                 element.key,
                                 element.colorStart.getRedPercentage(), element.colorStart.getGreenPercentage(), element.colorStart.getBluePercentage(),
                                 element.colorEnd.getRedPercentage(), element.colorEnd.getGreenPercentage(), element.colorEnd.getBluePercentage(), 
                                 element.duration, (element.interval == -1)
                             );
-                            effectActive = true;
                             break;
                         case LogitechLightningEvent.Type.RESTORE_KEY:
-                            RestoreLightingOnKey(element.key);
+                            _RestoreLightingOnKey(element.key);
                             break;
                         case LogitechLightningEvent.Type.SAVE_KEY:
-                            SaveCurrentLightingOnKey(element.key);
+                            _SaveCurrentLightingOnKey(element.key);
                             break;
                         case LogitechLightningEvent.Type.SET_GLOBAL:
                             {
                                 Array keys = Enum.GetValues(typeof(keyboardNames));
                                 foreach (keyboardNames key in keys)
                                 {
-                                    SetLightingOnKey(key, element.colorStart.getRedPercentage(), element.colorStart.getGreenPercentage(), element.colorStart.getBluePercentage());
+                                    _SetLightingOnKey(key, element.colorStart.getRedPercentage(), element.colorStart.getGreenPercentage(), element.colorStart.getBluePercentage());
                                 }
                             }
                             break;
@@ -274,13 +326,11 @@ namespace LogitechLedTools
                                 Array keys = Enum.GetValues(typeof(keyboardNames));
                                 foreach (keyboardNames key in keys)
                                 {
-                                    SetLightingOnKey(key, element.colorStart.getRedPercentage(), element.colorStart.getGreenPercentage(), element.colorStart.getBluePercentage());
-                                    FlashLightingOnKey(
-                                        key, element.colorEnd.getRedPercentage(), element.colorEnd.getGreenPercentage(), element.colorEnd.getBluePercentage(),
+                                    _FlashLightingOnKey(
+                                        key, element.colorStart.getRedPercentage(), element.colorStart.getGreenPercentage(), element.colorStart.getBluePercentage(),
                                         (element.duration < 0 ? LogitechGSDK.LOGI_LED_DURATION_INFINITE : element.duration), element.interval
                                     );
                                 }
-                                effectActive = true;
                             }
                             break;
                         case LogitechLightningEvent.Type.PULSE_GLOBAL:
@@ -288,21 +338,21 @@ namespace LogitechLedTools
                                 Array keys = Enum.GetValues(typeof(keyboardNames));
                                 foreach (keyboardNames key in keys)
                                 {
-                                    PulseLightingOnKey(
+                                    _SetLightingOnKey(key, element.colorStart.getRedPercentage(), element.colorStart.getGreenPercentage(), element.colorStart.getBluePercentage());
+                                    _PulseLightingOnKey(
                                         key,
                                         element.colorStart.getRedPercentage(), element.colorStart.getGreenPercentage(), element.colorStart.getBluePercentage(),
                                         element.colorEnd.getRedPercentage(), element.colorEnd.getGreenPercentage(), element.colorEnd.getBluePercentage(),
                                         element.duration, (element.interval == -1)
                                     );
                                 }
-                                effectActive = true;
                             }
                             break;
                         case LogitechLightningEvent.Type.RESTORE_GLOBAL:
-                            RestoreLighting();
+                            _RestoreLighting();
                             break;
                         case LogitechLightningEvent.Type.SAVE_GLOBAL:
-                            SaveCurrentLighting();
+                            _SaveCurrentLighting();
                             break;
                     }
                     break;
@@ -351,7 +401,7 @@ namespace LogitechLedTools
                 valueUpper = colors.Length - 1;
             }
             int valueFactor = Convert.ToInt32(value * 100) % 100;
-            return LogitechColor.MixColors(colors[valueUpper], colors[valueLower], valueFactor * 100, false);
+            return LogitechColor.MixColors(colors[valueUpper], colors[valueLower], valueFactor, false);
         }
 
         public IList<int> GetKeyList(KeyBar layout)
@@ -491,15 +541,132 @@ namespace LogitechLedTools
             return keyGrid[index];
         }
 
-        public void SetGlobalColor(LogitechColor color)
+        private void ClearEffects()
         {
-            Clear();
-            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.SET_GLOBAL, color));
+            ClearEffects(GetNextQueueTime());
         }
 
-        public void SetKeyColor(keyboardNames key, LogitechColor color)
+        private void ClearEffects(long time)
         {
-            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.SET_GLOBAL, color, key));
+            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.CLEAR_EFFECTS, null, time));
+        }
+
+        public void SetLighting(LogitechColor color)
+        {
+            SetLighting(color, GetNextQueueTime());
+        }
+
+        public void SetLighting(LogitechColor color, long time)
+        {
+            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.CLEAR_EFFECTS, null, time));
+            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.SET_GLOBAL, color, time + EventPadding));
+        }
+
+        public void FlashLighting(LogitechColor colorStart, LogitechColor colorEnd, int duration, int interval)
+        {
+            FlashLighting(colorStart, colorEnd, duration, interval, GetNextQueueTime());
+        }
+
+        public void FlashLighting(LogitechColor colorStart, LogitechColor colorEnd, int duration, int interval, long time)
+        {
+            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.CLEAR_EFFECTS, null, time));
+            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.SET_GLOBAL, colorStart, time + EventPadding));
+            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.FLASH_GLOBAL, colorEnd, null, 0, duration, interval, time + EventPadding));
+        }
+
+        public void PulseLighting(LogitechColor colorStart, LogitechColor colorEnd, int duration, int interval)
+        {
+            PulseLighting(colorStart, colorEnd, duration, interval, GetNextQueueTime());
+        }
+
+        public void PulseLighting(LogitechColor colorStart, LogitechColor colorEnd, int duration, int interval, long time)
+        {
+            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.CLEAR_EFFECTS, null, time));
+            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.PULSE_GLOBAL, colorStart, colorEnd, 0, duration, interval, time + EventPadding));
+        }
+
+        private void RestoreLighting()
+        {
+            RestoreLighting(GetNextQueueTime());
+        }
+
+        private void RestoreLighting(long time)
+        {
+            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.RESTORE_GLOBAL, null, time), false);
+        }
+
+        private void SaveCurrentLighting()
+        {
+            SaveCurrentLighting(GetNextQueueTime());
+        }
+
+        private void SaveCurrentLighting(long time)
+        {
+            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.SAVE_GLOBAL, null, time), false);
+        }
+
+        private void ClearEffectsOnKey(keyboardNames key)
+        {
+            ClearEffectsOnKey(key, GetNextQueueTime(key));
+        }
+
+        private void ClearEffectsOnKey(keyboardNames key, long time)
+        {
+            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.CLEAR_EFFECTS_KEY, null, key, time), false);
+        }
+
+        public void SetLightingOnKey(keyboardNames key, LogitechColor color)
+        {
+            SetLightingOnKey(key, color, GetNextQueueTime(key));
+        }
+
+        public void SetLightingOnKey(keyboardNames key, LogitechColor color, long time)
+        {
+            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.CLEAR_EFFECTS_KEY, null, key, time), false);
+            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.SET_KEY, color, key, time + EventPadding), false);
+        }
+
+        public void FlashLightingOnKey(keyboardNames key, LogitechColor colorStart, LogitechColor colorEnd, int duration, int interval)
+        {
+            FlashLightingOnKey(key, colorStart, colorEnd, duration, interval, GetNextQueueTime(key));
+        }
+
+        public void FlashLightingOnKey(keyboardNames key, LogitechColor colorStart, LogitechColor colorEnd, int duration, int interval, long time)
+        {
+            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.CLEAR_EFFECTS_KEY, null, key, time), false);
+            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.SET_KEY, colorStart, key, time + EventPadding), false);
+            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.FLASH_KEY, colorEnd, null, key, duration, interval, time + EventPadding), false);
+        }
+
+        public void PulseLightingOnKey(keyboardNames key, LogitechColor colorStart, LogitechColor colorEnd, int duration, int interval)
+        {
+            PulseLightingOnKey(key, colorStart, colorEnd, duration, interval, GetNextQueueTime(key));
+        }
+
+        public void PulseLightingOnKey(keyboardNames key, LogitechColor colorStart, LogitechColor colorEnd, int duration, int interval, long time)
+        {
+            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.CLEAR_EFFECTS_KEY, null, key, time), false);
+            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.PULSE_KEY, colorEnd, colorStart, key, duration, interval, time + EventPadding), false);
+        }
+
+        private void RestoreLightingOnKey(keyboardNames key)
+        {
+            RestoreLightingOnKey(key, GetNextQueueTime(key));
+        }
+
+        private void RestoreLightingOnKey(keyboardNames key, long time)
+        {
+            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.RESTORE_KEY, null, key, time), false);
+        }
+
+        private void SaveCurrentLightingOnKey(keyboardNames key)
+        {
+            SaveCurrentLightingOnKey(key, GetNextQueueTime(key));
+        }
+
+        private void SaveCurrentLightingOnKey(keyboardNames key, long time)
+        {
+            AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.SAVE_KEY, null, key, time), false);
         }
 
         public void SetKeyBar(KeyBar keyBar, LogitechColor colorFront, LogitechColor colorBack, int statusPercent)
@@ -510,29 +677,24 @@ namespace LogitechLedTools
         public void SetKeyBar(KeyBar keyBar, LogitechColor colorFront, LogitechColor colorBack, float statusPercent)
         {
             var keys = GetKeyList(keyBar);
+            long timeStart = GetNextQueueTime();
             int countFilled = (int)(statusPercent * keys.Count / 100);
             for (int keyIndex = 0; keyIndex < keys.Count; keyIndex++)
             {
                 if (keyIndex < countFilled)
                 {
-                    AddEvent(new LogitechLightningEvent(
-                        LogitechLightningEvent.Type.SET_KEY, colorFront, (keyboardNames)keys.ElementAt(keyIndex)
-                    ));
+                    SetLightingOnKey((keyboardNames)keys.ElementAt(keyIndex), colorFront, timeStart);
                 }
                 else if ((keyIndex == countFilled) && (keys.Count < 100))
                 {
                     int frontPercent = (countFilled * 100 / keys.Count);
                     float statusKeyPercent = (statusPercent - frontPercent) * 100 / (100 / keys.Count);
                     LogitechColor mixedColor = LogitechColor.MixColors(colorFront, colorBack, statusKeyPercent);
-                    AddEvent(new LogitechLightningEvent(
-                        LogitechLightningEvent.Type.SET_KEY, mixedColor, (keyboardNames)keys.ElementAt(keyIndex)
-                    ));
+                    SetLightingOnKey((keyboardNames)keys.ElementAt(keyIndex), mixedColor, timeStart);
                 }
                 else
                 {
-                    AddEvent(new LogitechLightningEvent(
-                        LogitechLightningEvent.Type.SET_KEY, colorBack, (keyboardNames)keys.ElementAt(keyIndex)
-                    ));
+                    SetLightingOnKey((keyboardNames)keys.ElementAt(keyIndex), colorBack, timeStart);
                 }
             }
         }
@@ -547,7 +709,7 @@ namespace LogitechLedTools
             // Enforce boundarys
             EnforceKeyBounds(ref left, ref top, ref right, ref bottom);
             // Start animation
-            long timeNow = timerEvents.ElapsedMilliseconds;
+            long timeStart = GetNextQueueTime();
             if (keyboardType == LogitechKeyboardType.PerKey)
             {
                 Random rng = new Random();
@@ -567,7 +729,7 @@ namespace LogitechLedTools
                         colorStart = GetColorFade(colValue + rowValue - 1.0, colorBottom, colorMiddle, colorTop);
                         colorEnd = GetColorFade(colValue + rowValue + 1.0, colorBottom, colorMiddle, colorTop);
                         animationEvents[key] = new LogitechLightningEvent(
-                            LogitechLightningEvent.Type.PULSE_KEY, colorStart, colorEnd, key, Convert.ToInt32(speed * colSpeed), -1, timeNow + Convert.ToInt32(speed * colSpeed)
+                            LogitechLightningEvent.Type.PULSE_KEY, colorStart, colorEnd, key, Convert.ToInt32(speed * colSpeed), -1, timeStart + Convert.ToInt32(speed * colSpeed)
                         );
                     }
                     colValue += (rng.NextDouble() * 2.0 - colValue) / 2;
@@ -577,9 +739,7 @@ namespace LogitechLedTools
             }
             else
             {
-                AddEvent(new LogitechLightningEvent(
-                    LogitechLightningEvent.Type.PULSE_GLOBAL, colorBottom, colorMiddle, 0, -1, speed, timeNow
-                ));
+                PulseLighting(colorBottom, colorMiddle, -1, speed, timeStart);
             }
         }
 
@@ -598,7 +758,7 @@ namespace LogitechLedTools
             // Enforce boundarys
             EnforceKeyBounds(ref left, ref top, ref right, ref bottom);
             // Start animation
-            long timeNow = timerEvents.ElapsedMilliseconds;
+            long timeStart = GetNextQueueTime();
             if (keyboardType == LogitechKeyboardType.PerKey)
             {
                 IDictionary<keyboardNames, LogitechLightningEvent> animationEvents = new Dictionary<keyboardNames, LogitechLightningEvent>();
@@ -610,16 +770,14 @@ namespace LogitechLedTools
                     {
                         key = GetKeyByPosition(x, y);
                         animationEvents[key] = new LogitechLightningEvent(
-                            LogitechLightningEvent.Type.PULSE_KEY, colorStart, colorEnd, key, speed / 2, -1, timeNow + ((x * speed * waveCount / 24) % speed)
+                            LogitechLightningEvent.Type.PULSE_KEY, colorStart, colorEnd, key, speed / 2, -1, timeStart + ((x * speed * waveCount / 24) % speed)
                         );
                     }
                 }
                 AddEvents(animationEvents.Values);
             } else
             {
-                AddEvent(new LogitechLightningEvent(
-                    LogitechLightningEvent.Type.PULSE_GLOBAL, colorStart, colorEnd, 0, -1, speed, timeNow
-                ));
+                PulseLighting(colorStart, colorEnd, -1, speed, timeStart);
             }
         }
 
@@ -630,7 +788,8 @@ namespace LogitechLedTools
             // Restore matching keys
             if (keyboardType == LogitechKeyboardType.PerKey)
             {
-                IDictionary<keyboardNames, LogitechLightningEvent> keyEvents = new Dictionary<keyboardNames, LogitechLightningEvent>();
+                long timeStart = GetNextQueueTime();
+                IList<keyboardNames> keyList = new List<keyboardNames>();
                 keyboardNames key;
                 int x, y;
                 for (x = left; x <= right; x++)
@@ -638,10 +797,13 @@ namespace LogitechLedTools
                     for (y = top; y <= bottom; y++)
                     {
                         key = GetKeyByPosition(x, y);
-                        keyEvents[key] = new LogitechLightningEvent(LogitechLightningEvent.Type.SET_KEY, color, key);
+                        if (!keyList.Contains(key))
+                        {
+                            keyList.Add(key);
+                            SetLightingOnKey(key, color, timeStart);
+                        }
                     }
                 }
-                AddEvents(keyEvents.Values);
             }
         }
 
@@ -652,7 +814,8 @@ namespace LogitechLedTools
             // Restore matching keys
             if (keyboardType == LogitechKeyboardType.PerKey)
             {
-                IDictionary<keyboardNames, LogitechLightningEvent> keyEvents = new Dictionary<keyboardNames, LogitechLightningEvent>();
+                long timeStart = GetNextQueueTime();
+                IList<keyboardNames> keyList = new List<keyboardNames>();
                 keyboardNames key;
                 int x, y;
                 for (x = left; x <= right; x++)
@@ -660,10 +823,13 @@ namespace LogitechLedTools
                     for (y = top; y <= bottom; y++)
                     {
                         key = GetKeyByPosition(x, y);
-                        keyEvents[key] = new LogitechLightningEvent(LogitechLightningEvent.Type.CLEAR_EFFECTS_KEY, null, key);
+                        if (!keyList.Contains(key))
+                        {
+                            keyList.Add(key);
+                            ClearEffectsOnKey(key, timeStart);
+                        }
                     }
                 }
-                AddEvents(keyEvents.Values);
             }
         }
 
@@ -674,7 +840,8 @@ namespace LogitechLedTools
             // Restore matching keys
             if (keyboardType == LogitechKeyboardType.PerKey)
             {
-                IDictionary<keyboardNames, LogitechLightningEvent> animationEvents = new Dictionary<keyboardNames, LogitechLightningEvent>();
+                long timeStart = GetNextQueueTime();
+                IList<keyboardNames> keyList = new List<keyboardNames>();
                 keyboardNames key;
                 int x, y;
                 for (x = left; x <= right; x++)
@@ -682,14 +849,17 @@ namespace LogitechLedTools
                     for (y = top; y <= bottom; y++)
                     {
                         key = GetKeyByPosition(x, y);
-                        animationEvents[key] = new LogitechLightningEvent(LogitechLightningEvent.Type.SAVE_KEY, null, key);
+                        if (!keyList.Contains(key))
+                        {
+                            keyList.Add(key);
+                            SaveCurrentLightingOnKey(key, timeStart);
+                        }
                     }
                 }
-                AddEvents(animationEvents.Values);
             }
             else
             {
-                AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.SAVE_GLOBAL, null));
+                SaveCurrentLighting();
             }
         }
 
@@ -700,7 +870,8 @@ namespace LogitechLedTools
             // Restore matching keys
             if (keyboardType == LogitechKeyboardType.PerKey)
             {
-                IDictionary<keyboardNames, LogitechLightningEvent> animationEvents = new Dictionary<keyboardNames, LogitechLightningEvent>();
+                long timeStart = GetNextQueueTime();
+                IList<keyboardNames> keyList = new List<keyboardNames>();
                 keyboardNames key;
                 int x, y;
                 for (x = left; x <= right; x++)
@@ -708,14 +879,17 @@ namespace LogitechLedTools
                     for (y = top; y <= bottom; y++)
                     {
                         key = GetKeyByPosition(x, y);
-                        animationEvents[key] = new LogitechLightningEvent(LogitechLightningEvent.Type.RESTORE_KEY, null, key);
+                        if (!keyList.Contains(key))
+                        {
+                            keyList.Add(key);
+                            RestoreLightingOnKey(key, timeStart);
+                        }
                     }
                 }
-                AddEvents(animationEvents.Values);
             }
             else
             {
-                AddEvent(new LogitechLightningEvent(LogitechLightningEvent.Type.RESTORE_GLOBAL, null));
+                RestoreLighting();
             }
         }
 
