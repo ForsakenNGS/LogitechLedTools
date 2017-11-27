@@ -170,6 +170,7 @@ function GetConfigAsJson() {
 
 function GetConfigValue(name, defaultValue) {
     if (typeof configuration[name] == "undefined") {
+        configuration[name] = defaultValue;
         return defaultValue;
     } else {
         return configuration[name];
