@@ -13,6 +13,8 @@ namespace LogitechLedTools
 
     class WebinterfaceNative
     {
+        private static bool fullscreenNotice = false;
+
         private static SlimDX.Direct3D9.Direct3D                    _direct3D = null;
         private static Dictionary<IntPtr, SlimDX.Direct3D9.Device>  _direct3DDeviceCache = null;
 
@@ -154,7 +156,19 @@ namespace LogitechLedTools
             }
             catch (SlimDX.Direct3D9.Direct3D9Exception exception)
             {
-                // TODO: Notify user / insert placeholder bitmap
+                if (exception.ResultCode.Name.Equals("D3DERR_DEVICELOST") && _direct3DDeviceCache.ContainsKey(hWnd))
+                {
+                    _direct3DDeviceCache[hWnd].Reset();
+                    //_direct3DDeviceCache.Remove(hWnd);
+                } else
+                {
+                    if (!fullscreenNotice)
+                    {
+                        fullscreenNotice = true;
+                        System.Windows.Forms.MessageBox.Show("Fullscreen mode not supported yet! Please switch to 'Windowed (Fullscreen)' instead of 'Fullscreen' to avoid this issue.");
+                    }
+                    Console.WriteLine(exception.ToString());
+                }
             }
             return bitmap;
         }

@@ -1,6 +1,7 @@
 ﻿var configuration = JSON.parse(ConfigJsonRead());
 var profileActive = null;
 var profileInitialized = false;
+var profileScreenshot = false;
 var profiles = {};
 var windowUpdateTime = 0;
 var windowsByHwnd = {};
@@ -129,17 +130,24 @@ function GetActiveProfile() {
         }
     }
     // Update active profile
-    if ((profileActive != null) && (windowActive == windowsByName[profileActive])) {
-        if (!profileInitialized) {
-            Log.Log("Initializing profile: "+profileActive+"...", LogLevel_DEBUG);
-            profileInitialized = true;
-            RegisterProfile();
-            Log.Log("Updating profile screenshot: " + profileActive + "...", LogLevel_DEBUG);
-            UpdateScreenshot(windowActive, profileActive + ".jpg");
-            Log.Log("Profile activated: " + profileActive + "!", LogLevel_DEBUG);
+    if (profileActive != null) {
+        if (windowActive == windowsByName[profileActive]) {
+            if (!profileInitialized) {
+                Log.Log("Initializing profile: " + profileActive + "...", LogLevel_DEBUG);
+                profileInitialized = true;
+                RegisterProfile();
+                Log.Log("Profile activated: " + profileActive + "!", LogLevel_DEBUG);
+            }
+            if (!profileScreenshot) {
+                Log.Log("Updating profile screenshot: " + profileActive + "...", LogLevel_DEBUG);
+                profileScreenshot = UpdateScreenshot(windowActive, profileActive + ".jpg");
+            }
+            profiles[profileActive].hwnd = windowActive;
+            return profiles[profileActive];
+        } else {
+            // Application inactive, create new screenshot on focus!
+            profileScreenshot = false;
         }
-        profiles[profileActive].hwnd = windowActive;
-        return profiles[profileActive];
     }
     return null;
 }
@@ -151,7 +159,9 @@ function UpdateScreenshot(hwnd, cacheFile) {
     if (bitmap != null) {
         bitmap.Save("webinterface" + filename, ImageFormat_Jpeg);
         bitmap.Dispose();
+        return true;
     }
+    return false;
 }
 
 function GetConfigAsJson() {

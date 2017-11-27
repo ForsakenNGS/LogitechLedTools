@@ -14,6 +14,7 @@
                 health: 0,
                 mana: 0,
                 energy: 0,
+                tooltipLastShown: 0,
                 talentAvailable: true,
                 animating: {
                     lowHp: false,
@@ -57,6 +58,10 @@
             .AddCondition("G", ">", "R").AddCondition("B", ">", "R").AddCondition("R", "<", 140).AddCondition("G", ">", 120).AddCondition("B", ">", 180);
         checkBars.AddBar("energy", 0, 198 / 1920, 0, 1010 / 1080, 0, 404 / 1920, 0, 1026 / 1080)
             .AddCondition("R", ">", "B").AddCondition("G", ">", "B").AddCondition("R", ">", 140).AddCondition("G", ">", 140);
+        // Buff / Healing fountain tooltip
+        var checkTooltip = updater.CreateCheck("game_tooltip", "Game");
+        checkTooltip.AddPoint("P01", 0, 370 / 1920, 0, 1025 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 40).AddCondition("B", "<", 70);
+        checkTooltip.AddPoint("P02", 0, 400 / 1920, 0, 1025 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 40).AddCondition("B", "<", 70);
         // Talent notification
         var checkTalent = updater.CreateCheck("game_talent", "Game");
         checkTalent.AddPoint("P01Blue", 0, 60 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
@@ -109,6 +114,7 @@
 
     // Update the scene-dependend checks
     hotsProfile.updateResult = function (updater, scene) {
+        var timeNow = GetEngineClock();
         if (scene == "Menu") {
             if (updater.GetPointPercentage("menu_match_search") == 1) {
                 hotsProfile.updateSceneDetail("Searching");
@@ -117,10 +123,20 @@
             }
         }
         if (scene == "Game") {
+            var health = hotsProfile.data.game.health;
+            var mana = hotsProfile.data.game.mana;
+            var energy = hotsProfile.data.game.energy;
+            if (updater.GetPointPercentage("game_tooltip") > 0) {
+                hotsProfile.data.game.tooltipLastShown = timeNow;
+            }
+            if ((timeNow - hotsProfile.data.game.tooltipLastShown) > 1500) {
+                health = updater.GetBarResult("game_bars", "health");
+                mana = updater.GetBarResult("game_bars", "mana");
+                energy = updater.GetBarResult("game_bars", "energy");
+            }
             hotsProfile.updateSceneDetail("Default");
             hotsProfile.updateGameData(
-                updater.GetBarResult("game_bars", "health"), updater.GetBarResult("game_bars", "mana"), updater.GetBarResult("game_bars", "energy"),
-                (updater.GetPointPercentage("game_talent") > 0.3)
+                health, mana, energy, (updater.GetPointPercentage("game_talent") > 0.3)
             );
             //Console_WriteLine("Debug talent: " + updater.GetPointPercentage("game_talent"));
             //updater.DebugCheck("game_talent");
