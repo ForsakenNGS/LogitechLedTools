@@ -37,13 +37,13 @@
         // HOTS Menu buttons
         var checkMenuButtons = updater.CreateCheck("base_menu_buttons");
         checkMenuButtons.AddPoint("P1", 0, 1650 / 1920, 0, 1069 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 70).AddCondition("G", "<", 70).AddCondition("B", ">", 70).AddCondition("B", "<", 110);
+            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 128).AddCondition("G", "<", 128).AddCondition("B", ">", 70).AddCondition("B", "<", 200);
         checkMenuButtons.AddPoint("P2", 0, 1700 / 1920, 0, 1069 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 70).AddCondition("G", "<", 70).AddCondition("B", ">", 70).AddCondition("B", "<", 110);
+            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 128).AddCondition("G", "<", 128).AddCondition("B", ">", 70).AddCondition("B", "<", 200);
         checkMenuButtons.AddPoint("P3", 0, 1750 / 1920, 0, 1069 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 70).AddCondition("G", "<", 70).AddCondition("B", ">", 70).AddCondition("B", "<", 110);
+            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 128).AddCondition("G", "<", 128).AddCondition("B", ">", 70).AddCondition("B", "<", 200);
         checkMenuButtons.AddPoint("P4", 0, 1800 / 1920, 0, 1069 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 70).AddCondition("G", "<", 70).AddCondition("B", ">", 70).AddCondition("B", "<", 110);
+            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 128).AddCondition("G", "<", 128).AddCondition("B", ">", 70).AddCondition("B", "<", 200);
         // Match search box
         var checkMatchSearch = updater.CreateCheck("menu_match_search", "Menu");
         checkMatchSearch.AddPoint("P1", 0, 856 / 1920, 0, 1030 / 1080)
@@ -99,7 +99,7 @@
 
     // Update active scene (detect if in menu / game / ...)
     hotsProfile.updateScene = function (updater) {
-        if (updater.GetPointPercentage("base_menu_buttons") == 1) {
+        if (updater.GetPointPercentage("base_menu_buttons") > 0.7) {
             // Menu buttons found!
             hotsProfile.updateSceneBase("Menu");
             return "Menu";
