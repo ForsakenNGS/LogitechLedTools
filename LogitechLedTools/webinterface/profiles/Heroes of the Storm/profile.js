@@ -4,6 +4,9 @@
             updateScene: 2000,
             updateGame: 500
         },
+        config: {
+            mode: "bars"
+        },
         data: {
             scene: "Unknown",
             detail: "Unknown",
@@ -18,7 +21,8 @@
                 talentAvailable: true,
                 animating: {
                     lowHp: false,
-                    talent: false
+                    talent: false,
+                    talentPaused: false
                 }
             },
             lastUpdate: {
@@ -30,16 +34,16 @@
 
     // Register all checks for this profile
     hotsProfile.register = function (updater) {
-        // HOTS logo
-        var checkLogo = updater.CreateCheck("base_logo");
-        checkLogo.AddPoint("P1", 0, 44 / 1920, 0, 22 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("R", ">", "G").AddCondition("R", "<", 160).AddCondition("G", "<", 50).AddCondition("B", ">", 40);
-        checkLogo.AddPoint("P2", 0, 52 / 1920, 0, 44 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("R", ">", "G").AddCondition("R", "<", 160).AddCondition("G", "<", 50).AddCondition("B", ">", 40);
-        checkLogo.AddPoint("P3", 0, 30 / 1920, 0, 38 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("R", ">", "G").AddCondition("R", "<", 160).AddCondition("G", "<", 50).AddCondition("B", ">", 40);
-        checkLogo.AddPoint("P4", 0, 42 / 1920, 0, 30 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("R", ">", "G").AddCondition("R", ">", 150).AddCondition("G", ">", 150).AddCondition("B", ">", 210);
+        // HOTS Menu buttons
+        var checkMenuButtons = updater.CreateCheck("base_menu_buttons");
+        checkMenuButtons.AddPoint("P1", 0, 1650 / 1920, 0, 1069 / 1080)
+            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 70).AddCondition("G", "<", 70).AddCondition("B", ">", 70).AddCondition("B", "<", 110);
+        checkMenuButtons.AddPoint("P2", 0, 1700 / 1920, 0, 1069 / 1080)
+            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 70).AddCondition("G", "<", 70).AddCondition("B", ">", 70).AddCondition("B", "<", 110);
+        checkMenuButtons.AddPoint("P3", 0, 1750 / 1920, 0, 1069 / 1080)
+            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 70).AddCondition("G", "<", 70).AddCondition("B", ">", 70).AddCondition("B", "<", 110);
+        checkMenuButtons.AddPoint("P4", 0, 1800 / 1920, 0, 1069 / 1080)
+            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 70).AddCondition("G", "<", 70).AddCondition("B", ">", 70).AddCondition("B", "<", 110);
         // Match search box
         var checkMatchSearch = updater.CreateCheck("menu_match_search", "Menu");
         checkMatchSearch.AddPoint("P1", 0, 856 / 1920, 0, 1030 / 1080)
@@ -64,37 +68,39 @@
         checkTooltip.AddPoint("P02", 0, 400 / 1920, 0, 1025 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 40).AddCondition("B", "<", 70);
         // Talent notification
         var checkTalent = updater.CreateCheck("game_talent", "Game");
-        checkTalent.AddPoint("P01Blue", 0, 60 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
-        checkTalent.AddPoint("P02Blue", 0, 70 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
-        checkTalent.AddPoint("P03Blue", 0, 80 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
-        checkTalent.AddPoint("P05Blue", 0, 90 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
-        checkTalent.AddPoint("P06Blue", 0, 100 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
-        checkTalent.AddPoint("P07Blue", 0, 110 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
-        checkTalent.AddPoint("P08Blue", 0, 120 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
-        checkTalent.AddPoint("P09Blue", 0, 130 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
-        checkTalent.AddPoint("P10Blue", 0, 140 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
-        checkTalent.AddPoint("P11Blue", 0, 150 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
-        checkTalent.AddPoint("P12Blue", 0, 170 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
-        checkTalent.AddPoint("P13Blue", 0, 170 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
-        checkTalent.AddPoint("P01White", 0, 60 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
-        checkTalent.AddPoint("P02White", 0, 70 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
-        checkTalent.AddPoint("P03White", 0, 80 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
-        checkTalent.AddPoint("P05White", 0, 90 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
-        checkTalent.AddPoint("P06White", 0, 100 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
-        checkTalent.AddPoint("P07White", 0, 110 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
-        checkTalent.AddPoint("P08White", 0, 120 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
-        checkTalent.AddPoint("P09White", 0, 130 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
-        checkTalent.AddPoint("P10White", 0, 140 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
-        checkTalent.AddPoint("P11White", 0, 150 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
-        checkTalent.AddPoint("P12White", 0, 170 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
-        checkTalent.AddPoint("P13White", 0, 170 / 1920, 0, 1023 / 1080).AddCondition("R", ">", 180).AddCondition("G", ">", 180).AddCondition("B", ">", 180);
+        var checkTalentBlueMin = 140;
+        var checkTalentWhiteMin = 170;
+        checkTalent.AddPoint("P01Blue", 0, 60 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
+        checkTalent.AddPoint("P02Blue", 0, 70 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
+        checkTalent.AddPoint("P03Blue", 0, 80 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
+        checkTalent.AddPoint("P05Blue", 0, 90 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
+        checkTalent.AddPoint("P06Blue", 0, 100 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
+        checkTalent.AddPoint("P07Blue", 0, 110 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
+        checkTalent.AddPoint("P08Blue", 0, 120 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
+        checkTalent.AddPoint("P09Blue", 0, 130 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
+        checkTalent.AddPoint("P10Blue", 0, 140 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
+        checkTalent.AddPoint("P11Blue", 0, 150 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
+        checkTalent.AddPoint("P12Blue", 0, 170 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
+        checkTalent.AddPoint("P13Blue", 0, 170 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
+        checkTalent.AddPoint("P01White", 0, 60 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
+        checkTalent.AddPoint("P02White", 0, 70 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
+        checkTalent.AddPoint("P03White", 0, 80 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
+        checkTalent.AddPoint("P05White", 0, 90 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
+        checkTalent.AddPoint("P06White", 0, 100 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
+        checkTalent.AddPoint("P07White", 0, 110 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
+        checkTalent.AddPoint("P08White", 0, 120 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
+        checkTalent.AddPoint("P09White", 0, 130 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
+        checkTalent.AddPoint("P10White", 0, 140 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
+        checkTalent.AddPoint("P11White", 0, 150 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
+        checkTalent.AddPoint("P12White", 0, 170 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
+        checkTalent.AddPoint("P13White", 0, 170 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
 
     };
 
     // Update active scene (detect if in menu / game / ...)
     hotsProfile.updateScene = function (updater) {
-        if (updater.GetPointPercentage("base_logo") == 1) {
-            // Logo found!
+        if (updater.GetPointPercentage("base_menu_buttons") == 1) {
+            // Menu buttons found!
             hotsProfile.updateSceneBase("Menu");
             return "Menu";
         } else {
@@ -164,7 +170,7 @@
     };
 
     // Update led display
-    hotsProfile.display = function (profileData) {
+    hotsProfile.display = function (profileData, profileConfig) {
         //LogitechKeyboard.Clear();
         if (profileData.dirty) {
             var timeNow = GetEngineClock();
@@ -184,7 +190,7 @@
                     statusHtml += "<strong>Mana: " + Math.round(profileData.game.mana * 100) + "%</strong><br />";
                 }
                 // Update keyboard lightning
-                if (LogitechKeyboard.IsPerKey()) {
+                if (LogitechKeyboard.IsPerKey() && (profileConfig.mode == "bars")) {
                     // Per key lightning
                     // - Health
                     if ((profileData.game.health > 0.01) && (profileData.game.health < 0.3)) {
@@ -221,23 +227,29 @@
                     if ((profileData.game.health > 0.01) && (profileData.game.health < 0.3)) {
                         if (!profileData.game.animating.lowHp) {
                             profileData.game.animating.lowHp = true;
-                            LogitechKeyboard.StartWaveAnimation(LogitechKeyboard.GetColor(0, 0, 0), LogitechKeyboard.GetColor(255, 0, 0), 300);
+                            LogitechKeyboard.StartWaveAnimation(LogitechKeyboard.GetColor(0, 0, 0), LogitechKeyboard.GetColor(255, 0, 0), 1000, 3);
                         }
                     } else {
                         profileData.game.animating.lowHp = false;
+                        if (profileData.game.animating.talentPaused < timeNow) {
+                            profileData.game.animating.talentPaused = false;
+                        }
                         if (!profileData.game.animating.talent) {
-                            if (profileData.game.talentAvailable) {
-                                profileData.game.animating.talent = timeNow + 5000;
-                                LogitechKeyboard.PulseLighting(LogitechKeyboard.GetColor(0, 0, 0), LogitechKeyboard.GetColor(80, 80, 255), 5000, 250);
+                            if (profileData.game.talentAvailable && !profileData.game.animating.talentPaused) {
+                                profileData.game.animating.talent = timeNow + 10000;
+                                profileData.game.animating.talentPaused = timeNow + 20000;
+                                LogitechKeyboard.StartWaveAnimation(LogitechKeyboard.GetColor(0, 0, 0), LogitechKeyboard.GetColor(80, 80, 255), 1000, 3);
                             }
                         } else if (!profileData.game.talentAvailable) {
                             profileData.game.animating.talent = false;
+                            profileData.game.animating.talentPaused = false;
                         }
                         if (!profileData.game.animating.talent || (profileData.game.animating.talent < timeNow)) {
                             LogitechKeyboard.SetLighting(LogitechKeyboard.GetColorFade(
                                 profileData.game.health * 2,
                                 LogitechKeyboard.GetColor(255, 0, 0), LogitechKeyboard.GetColor(255, 255, 0), LogitechKeyboard.GetColor(0, 255, 0)
                             ));
+                            profileData.game.animating.talent = false;
                         }
                     }
                 }

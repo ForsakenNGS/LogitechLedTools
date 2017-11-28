@@ -1,0 +1,34 @@
+﻿<h1>{{ name }}</h1>
+<div class="row">
+    <div class="col-sm">
+        <h3>Base information</h3>
+        {{#active}}
+        <span class="badge badge-primary">Active</span>
+        <span class="badge badge-success">{{ profile.scene }}</span>
+        <br />
+        {{ &profile.status }}
+        {{ &profile.debug }}
+        {{/active}}
+        {{^active}}
+        <span class="badge badge-secondary">Inactive</span>
+        {{/active}}
+    </div>
+    <div class="col-sm">
+        <form data-content="profile-config">
+            <h3>Configuration</h3>
+            <div class="form-group">
+                <label for="profileConfigMode">Mode</label>
+                <select class="form-control" id="profileConfigMode" name="mode" aria-describedby="profileConfigModeHelp" data-submit="auto">
+                    <option value="full">Full keyboard lightning</option>
+                    <option value="bars">Bar layout (Health on F1-12, Mana/Energy on Numpad)</option>
+                </select>
+                <small id="profileConfigModeHelp" class="form-text text-muted">
+                    Display mode for the keyboard
+                </small>
+            </div>
+        </form>
+    </div>
+    <div class="col-sm">
+
+    </div>
+</div>

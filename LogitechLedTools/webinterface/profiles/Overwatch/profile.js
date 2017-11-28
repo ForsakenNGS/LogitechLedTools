@@ -4,6 +4,9 @@
             updateScene: 2000,
             updateGame: 500
         },
+        config: {
+            mode: "bars"
+        },
         data: {
             scene: "Unknown",
             detail: "Unknown",

@@ -35,9 +35,17 @@ namespace LogitechLedTools
             active = false;
             updater = null;
             log.Log("Init logitech LED library...", LogWriter.Level.DEBUG);
-            if (!LogitechGSDK.LogiLedInit())
+            try
             {
-                throw new Exception("Failed to initialize Logitech LED library");
+                if (!LogitechGSDK.LogiLedInit())
+                {
+                    throw new Exception("Failed to initialize Logitech LED library");
+                }
+            } catch (Exception e)
+            {
+                log.Log(e.ToString(), LogWriter.Level.ERROR);
+                log.Dispose();
+                throw e;
             }
             keyboard = new LogitechKeyboard();
             log.Log("Init javascript library library...", LogWriter.Level.DEBUG);
@@ -71,6 +79,8 @@ namespace LogitechLedTools
             engine.SetValue("LoadProfileDisplay", new Func<string, Jint.Native.JsValue>(LoadProfileDisplay));
             engine.SetValue("ConfigJsonRead", new Func<string>(ConfigJsonRead));
             engine.SetValue("ConfigJsonWrite", new Action<string>(ConfigJsonWrite));
+            engine.SetValue("LoadProfileConfig", new Func<string, string>(LoadProfileConfig));
+            engine.SetValue("SaveProfileConfig", new Action<string, string>(SaveProfileConfig));
             log.Log("Starting update routine...", LogWriter.Level.DEBUG);
             engineClock = new Stopwatch();
             engineClock.Start();
@@ -122,6 +132,20 @@ namespace LogitechLedTools
             {
                 return JsValue.Null;
             }
+        }
+
+        private string LoadProfileConfig(string name)
+        {
+            if (File.Exists("webinterface/profiles/" + name + "/config.json"))
+            {
+                return File.ReadAllText("webinterface/profiles/" + name + "/config.json");
+            }
+            return "{}";
+        }
+
+        public void SaveProfileConfig(string name, string jsonConfig)
+        {
+            File.WriteAllText("webinterface/profiles/" + name + "/config.json", jsonConfig);
         }
 
         public void RegisterProfile()
@@ -177,7 +201,8 @@ namespace LogitechLedTools
                     {
                         var displayFunction = activeProfileObj.GetProperty("display").Value;
                         var profileData = activeProfileObj.GetProperty("data").Value;
-                        HandleScriptFunction(displayFunction, profileData);
+                        var profileConfig = activeProfileObj.GetProperty("config").Value;
+                        HandleScriptFunction(displayFunction, profileData, profileConfig);
                     }
                 }
             }
@@ -251,6 +276,25 @@ namespace LogitechLedTools
                             response.ContentType = "application/json; charset=utf-8";
                             var name = request.QueryString["name"];
                             OutputString(HandleScriptFunction("LoadProfile", name).AsString(), response);
+                        }
+                        break;
+                    case "/profileDetails.json":
+                        {
+                            response.ContentType = "application/json; charset=utf-8";
+                            OutputString(HandleScriptFunction("GetActiveProfileData").AsString(), response);
+                        }
+                        break;
+                    case "/profileConfig.json":
+                        {
+                            response.ContentType = "application/json; charset=utf-8";
+                            StreamReader postReader = new StreamReader(request.InputStream);
+                            string postBody = postReader.ReadToEnd();
+                            NameValueCollection postVars = HttpUtility.ParseQueryString(postBody);
+                            var name = postVars["name"];
+                            var config = postVars["config"];
+                            SaveProfileConfig(name, config);
+                            HandleScriptFunction("LoadProfileConfigValues", name, config);
+                            OutputString("{success: true}", response);
                         }
                         break;
                     case "/setting.json":

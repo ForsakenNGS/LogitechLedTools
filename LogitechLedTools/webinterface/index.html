@@ -36,6 +36,10 @@
 
     </div>
 
+    <div id="profileDetail" class="content-container">
+
+    </div>
+
     <div id="settings" class="content-container" style="display: none;">
         <h3>Settings</h3>
 
@@ -60,29 +64,39 @@
     <script src="/interface.js"></script>
     <script id="tplProfileCards" type="x-tmpl-mustache">
         <h3>Running applications</h3>
-        {{#profiles}}
-        <div class="card" style="width: 20rem;">
-            <img class="card-img-top" src="{{ screenshot }}" alt="Latest Screenshot">
-            <div class="card-body">
-                <h4 class="card-title">{{ name }}</h4>
-                <p class="card-text">
-                {{#active}}
-                    <span class="badge badge-primary">Active</span>
-                    <span class="badge badge-success">{{ profile.scene }}</span>
-                    <br />
-                    {{ &profile.status }}
-                    {{ &profile.debug }}
-                {{/active}}
-                {{^active}}
-                    <span class="badge badge-secondary">Inactive</span>
-                {{/active}}
-                </p>
+        <div class="row">
+            {{#profiles}}
+            <div class="col-sm-4">
+                <div class="card">
+                    <a href="#{{ name }}" onclick="ShowProfileDetails('{{ name }}')">
+                        <img class="card-img-top" src="{{ screenshot }}" alt="Latest Screenshot">
+                    </a>
+                    <div class="card-body">
+                        <a href="#{{ name }}" onclick="ShowProfileDetails('{{ name }}')">
+                            <h4 class="card-title">{{ name }}</h4>
+                        </a>
+                        <p class="card-text">
+                            {{#active}}
+                            <span class="badge badge-primary">Active</span>
+                            <span class="badge badge-success">{{ profile.scene }}</span>
+                            <br />
+                            {{ &profile.status }}
+                            {{ &profile.debug }}
+                            {{/active}}
+                            {{^active}}
+                            <span class="badge badge-secondary">Inactive</span>
+                            {{/active}}
+                        </p>
+                    </div>
+                </div>
             </div>
+            {{/profiles}}
+            {{^profiles}}
+            <div class="col-sm-12">
+                <h4>No compatible applications running.</h4>
+            </div>
+            {{/profiles}}
         </div>
-        {{/profiles}}
-        {{^profiles}}
-        <h4>No compatible applications running.</h4>
-        {{/profiles}}
-    </script>
+</script>
 </body>
 </html>

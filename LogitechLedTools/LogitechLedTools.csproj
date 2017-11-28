@@ -11,6 +11,7 @@
     <AssemblyName>LogitechLedTools</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -23,7 +24,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -48,6 +48,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>LogitechLedTools.TrayApp</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>tray.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="DirectXApplication.cs" />
@@ -126,8 +129,14 @@
     <Content Include="webinterface\mustache.min.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="webinterface\profiles\Heroes of the Storm\details.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="webinterface\profiles\Heroes of the Storm\profile.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="webinterface\profiles\Overwatch\details.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="webinterface\profiles\Overwatch\profile.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

@@ -93,6 +93,7 @@ function CheckProfile(name) {
         profiles[name] = LoadProfileClass(name);
         if (profiles[name] != null) {
             // Ensure display method is available and load custom one if defined
+            profiles[name].name = name;
             if (typeof profiles[name].display != "function") {
                 // Dummy display method
                 profiles[name].display = function (profileData) { };
@@ -102,9 +103,26 @@ function CheckProfile(name) {
                 // Apply custom display method
                 profiles[name].display = profileDisplay;
             }
+            LoadProfileConfigValues(name);
         }
     }
     return (profiles[name] !== null);
+}
+
+function LoadProfileConfigValues(name, profileConfig) {
+    if (typeof profiles[name] != "undefined") {
+        if (typeof profiles[name].config == "undefined") {
+            profiles[name].config = {};
+        }
+        if (typeof profileConfig == "undefined") {
+            profileConfig = JSON.parse(LoadProfileConfig(name));
+        } else if (typeof profileConfig == "string") {
+            profileConfig = JSON.parse(profileConfig);
+        }
+        for (var configName in profileConfig) {
+            profiles[name].config[configName] = profileConfig[configName];
+        }
+    }
 }
 
 function LoadProfile(name) {
@@ -142,6 +160,7 @@ function GetActiveProfile() {
                 Log.Log("Updating profile screenshot: " + profileActive + "...", LogLevel_DEBUG);
                 profileScreenshot = UpdateScreenshot(windowActive, profileActive + ".jpg");
             }
+            profiles[profileActive].name = profileActive;
             profiles[profileActive].hwnd = windowActive;
             return profiles[profileActive];
         } else {
@@ -150,6 +169,13 @@ function GetActiveProfile() {
         }
     }
     return null;
+}
+
+function GetActiveProfileData() {
+    if (profileActive != null) {
+        return JSON.stringify(profiles[profileActive]);
+    }
+    return {};
 }
 
 function UpdateScreenshot(hwnd, cacheFile) {
