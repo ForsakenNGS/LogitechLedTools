@@ -44,16 +44,18 @@
             .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 128).AddCondition("G", "<", 128).AddCondition("B", ">", 70).AddCondition("B", "<", 200);
         checkMenuButtons.AddPoint("P4", 0, 1800 / 1920, 0, 1069 / 1080)
             .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 128).AddCondition("G", "<", 128).AddCondition("B", ">", 70).AddCondition("B", "<", 200);
-        // Match search box
-        var checkMatchSearch = updater.CreateCheck("menu_match_search", "Menu");
-        checkMatchSearch.AddPoint("P1", 0, 856 / 1920, 0, 1030 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("R", ">", "G").AddCondition("R", ">", 100).AddCondition("G", ">", 100).AddCondition("B", ">", 150);
-        checkMatchSearch.AddPoint("P2", 0, 1063 / 1920, 0, 1030 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("R", ">", "G").AddCondition("R", ">", 100).AddCondition("G", ">", 100).AddCondition("B", ">", 150);
-        checkMatchSearch.AddPoint("P3", 0, 960 / 1920, 0, 1020 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("R", ">", "G").AddCondition("R", ">", 100).AddCondition("G", ">", 100).AddCondition("B", ">", 150);
-        checkMatchSearch.AddPoint("P4", 0, 960 / 1920, 0, 1048 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("R", ">", "G").AddCondition("R", "<", 70).AddCondition("G", "<", 40).AddCondition("B", ">", 80);
+        checkMenuButtons.AddPoint("P5", 0, 1800 / 1920, 0, 1069 / 1080)
+            .AddCondition("R", "<", 128).AddCondition("G", "<", 180).AddCondition("B", ">", 180).AddCondition("B", "<", 220);
+        // Ready check
+        var checkMatchSearch = updater.CreateCheck("menu_ready_check", "Menu");
+        checkMatchSearch.AddPoint("P1", 0, 1865 / 1920, 0, 42 / 1080)
+            .AddCondition("G", ">", "R").AddCondition("G", ">", "B").AddCondition("R", "<", 50).AddCondition("G", ">", 200).AddCondition("B", "<", 220);
+        checkMatchSearch.AddPoint("P2", 0, 1865 / 1920, 0, 60 / 1080)
+            .AddCondition("G", ">", "R").AddCondition("G", ">", "B").AddCondition("R", "<", 50).AddCondition("G", ">", 200).AddCondition("B", "<", 220);
+        checkMatchSearch.AddPoint("P3", 0, 1865 / 1920, 0, 72 / 1080)
+            .AddCondition("G", ">", "R").AddCondition("G", ">", "B").AddCondition("R", "<", 50).AddCondition("G", ">", 200).AddCondition("B", "<", 220);
+        checkMatchSearch.AddPoint("P4", 0, 1880 / 1920, 0, 46 / 1080)
+            .AddCondition("G", ">", "R").AddCondition("G", ">", "B").AddCondition("R", "<", 50).AddCondition("G", ">", 200).AddCondition("B", "<", 220);
         // HP and MP bar
         var checkBars = updater.CreateCheck("game_bars", "Game");
         checkBars.AddBar("health", 0, 208 / 1920, 0, 992 / 1080, 0, 414 / 1920, 0, 1010 / 1080)
@@ -99,7 +101,7 @@
 
     // Update active scene (detect if in menu / game / ...)
     hotsProfile.updateScene = function (updater) {
-        if (updater.GetPointPercentage("base_menu_buttons") > 0.7) {
+        if (updater.GetPointPercentage("base_menu_buttons") > 0.75) {
             // Menu buttons found!
             hotsProfile.updateSceneBase("Menu");
             return "Menu";
@@ -122,7 +124,7 @@
     hotsProfile.updateResult = function (updater, scene) {
         var timeNow = GetEngineClock();
         if (scene == "Menu") {
-            if (updater.GetPointPercentage("menu_match_search") == 1) {
+            if (updater.GetPointPercentage("menu_ready_check") == 1) {
                 hotsProfile.updateSceneDetail("Searching");
             } else {
                 hotsProfile.updateSceneDetail("Default");
