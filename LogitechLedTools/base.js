@@ -172,10 +172,16 @@ function GetActiveProfile() {
 }
 
 function GetActiveProfileData() {
-    if (profileActive != null) {
-        return JSON.stringify(profiles[profileActive]);
+    return GetProfileData(profileActive);
+}
+
+function GetProfileData(name) {
+    var result = {};
+    if (typeof profiles[name] != "undefined") {
+        result = profiles[name];
+        result.active = (profileActive == name);
     }
-    return {};
+    return JSON.stringify(result);
 }
 
 function UpdateScreenshot(hwnd, cacheFile) {

@@ -35,68 +35,73 @@
     // Register all checks for this profile
     hotsProfile.register = function (updater) {
         // HOTS Menu buttons
+        var condMenuButtonsBorder = updater.CreateConditionList()
+            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 128).AddCondition("G", "<", 128).AddCondition("B", ">", 70).AddCondition("B", "<", 200);
+        var condMenuButtonsSymbol = updater.CreateConditionList()
+            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 128).AddCondition("G", "<", 180).AddCondition("B", ">", 180).AddCondition("B", "<", 220);
         var checkMenuButtons = updater.CreateCheck("base_menu_buttons");
-        checkMenuButtons.AddPoint("P1", 0, 1650 / 1920, 0, 1069 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 128).AddCondition("G", "<", 128).AddCondition("B", ">", 70).AddCondition("B", "<", 200);
-        checkMenuButtons.AddPoint("P2", 0, 1700 / 1920, 0, 1069 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 128).AddCondition("G", "<", 128).AddCondition("B", ">", 70).AddCondition("B", "<", 200);
-        checkMenuButtons.AddPoint("P3", 0, 1750 / 1920, 0, 1069 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 128).AddCondition("G", "<", 128).AddCondition("B", ">", 70).AddCondition("B", "<", 200);
-        checkMenuButtons.AddPoint("P4", 0, 1800 / 1920, 0, 1069 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 128).AddCondition("G", "<", 128).AddCondition("B", ">", 70).AddCondition("B", "<", 200);
-        checkMenuButtons.AddPoint("P5", 0, 1800 / 1920, 0, 1069 / 1080)
-            .AddCondition("R", "<", 128).AddCondition("G", "<", 180).AddCondition("B", ">", 180).AddCondition("B", "<", 220);
+        checkMenuButtons.AddPoint("P1", 0, 1650 / 1920, 0, 1069 / 1080, condMenuButtonsBorder);
+        checkMenuButtons.AddPoint("P2", 0, 1700 / 1920, 0, 1069 / 1080, condMenuButtonsBorder);
+        checkMenuButtons.AddPoint("P3", 0, 1750 / 1920, 0, 1069 / 1080, condMenuButtonsBorder);
+        checkMenuButtons.AddPoint("P4", 0, 1800 / 1920, 0, 1069 / 1080, condMenuButtonsBorder);
+        checkMenuButtons.AddPoint("P5", 0, 1745 / 1920, 0, 1055 / 1080, condMenuButtonsSymbol);
         // Ready check
+        var condMatchSearchIcon = updater.CreateConditionList()
+            .AddCondition("G", ">", "R").AddCondition("G", ">", "B").AddCondition("R", "<", 50).AddCondition("G", ">", 200).AddCondition("B", "<", 220);
         var checkMatchSearch = updater.CreateCheck("menu_ready_check", "Menu");
-        checkMatchSearch.AddPoint("P1", 0, 1865 / 1920, 0, 42 / 1080)
-            .AddCondition("G", ">", "R").AddCondition("G", ">", "B").AddCondition("R", "<", 50).AddCondition("G", ">", 200).AddCondition("B", "<", 220);
-        checkMatchSearch.AddPoint("P2", 0, 1865 / 1920, 0, 60 / 1080)
-            .AddCondition("G", ">", "R").AddCondition("G", ">", "B").AddCondition("R", "<", 50).AddCondition("G", ">", 200).AddCondition("B", "<", 220);
-        checkMatchSearch.AddPoint("P3", 0, 1865 / 1920, 0, 72 / 1080)
-            .AddCondition("G", ">", "R").AddCondition("G", ">", "B").AddCondition("R", "<", 50).AddCondition("G", ">", 200).AddCondition("B", "<", 220);
-        checkMatchSearch.AddPoint("P4", 0, 1880 / 1920, 0, 46 / 1080)
-            .AddCondition("G", ">", "R").AddCondition("G", ">", "B").AddCondition("R", "<", 50).AddCondition("G", ">", 200).AddCondition("B", "<", 220);
+        checkMatchSearch.AddPoint("P1", 0, 1865 / 1920, 0, 42 / 1080, condMatchSearchIcon);
+        checkMatchSearch.AddPoint("P2", 0, 1865 / 1920, 0, 60 / 1080, condMatchSearchIcon);
+        checkMatchSearch.AddPoint("P3", 0, 1865 / 1920, 0, 72 / 1080, condMatchSearchIcon);
+        checkMatchSearch.AddPoint("P4", 0, 1880 / 1920, 0, 46 / 1080, condMatchSearchIcon);
         // HP and MP bar
-        var checkBars = updater.CreateCheck("game_bars", "Game");
-        checkBars.AddBar("health", 0, 208 / 1920, 0, 992 / 1080, 0, 414 / 1920, 0, 1010 / 1080)
+        var condBarsHealth = updater.CreateConditionList()
             .AddCondition("G", ">", "R").AddCondition("G", ">", "B").AddCondition("R", "<", 160).AddCondition("G", ">", 180);
-        checkBars.AddBar("mana", 0, 198 / 1920, 0, 1010 / 1080, 0, 404 / 1920, 0, 1026 / 1080)
+        var condBarsMana = updater.CreateConditionList()
             .AddCondition("G", ">", "R").AddCondition("B", ">", "R").AddCondition("R", "<", 140).AddCondition("G", ">", 120).AddCondition("B", ">", 180);
-        checkBars.AddBar("energy", 0, 198 / 1920, 0, 1010 / 1080, 0, 404 / 1920, 0, 1026 / 1080)
+        var condBarsEnergy = updater.CreateConditionList()
             .AddCondition("R", ">", "B").AddCondition("G", ">", "B").AddCondition("R", ">", 140).AddCondition("G", ">", 140);
+        var checkBars = updater.CreateCheck("game_bars", "Game");
+        checkBars.AddBar("health", 0, 208 / 1920, 0, 992 / 1080, 0, 414 / 1920, 0, 1010 / 1080, condBarsHealth);
+        checkBars.AddBar("mana", 0, 198 / 1920, 0, 1010 / 1080, 0, 404 / 1920, 0, 1026 / 1080, condBarsMana);
+        checkBars.AddBar("energy", 0, 198 / 1920, 0, 1010 / 1080, 0, 404 / 1920, 0, 1026 / 1080, condBarsEnergy);
         // Buff / Healing fountain tooltip
+        var condTooltipBack = updater.CreateConditionList()
+            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 40).AddCondition("B", "<", 70);
         var checkTooltip = updater.CreateCheck("game_tooltip", "Game");
-        checkTooltip.AddPoint("P01", 0, 370 / 1920, 0, 1025 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 40).AddCondition("B", "<", 70);
-        checkTooltip.AddPoint("P02", 0, 400 / 1920, 0, 1025 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 40).AddCondition("B", "<", 70);
+        checkTooltip.AddPoint("P01", 0, 370 / 1920, 0, 1025 / 1080, condTooltipBack);
+        checkTooltip.AddPoint("P02", 0, 400 / 1920, 0, 1025 / 1080, condTooltipBack);
         // Talent notification
+        var condTalentBlue = updater.CreateConditionList()
+            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
+        var condTalentWhite = updater.CreateConditionList()
+            .AddCondition("R", ">", 170).AddCondition("G", ">", 170).AddCondition("B", ">", 170);
         var checkTalent = updater.CreateCheck("game_talent", "Game");
         var checkTalentBlueMin = 140;
         var checkTalentWhiteMin = 170;
-        checkTalent.AddPoint("P01Blue", 0, 60 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
-        checkTalent.AddPoint("P02Blue", 0, 70 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
-        checkTalent.AddPoint("P03Blue", 0, 80 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
-        checkTalent.AddPoint("P05Blue", 0, 90 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
-        checkTalent.AddPoint("P06Blue", 0, 100 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
-        checkTalent.AddPoint("P07Blue", 0, 110 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
-        checkTalent.AddPoint("P08Blue", 0, 120 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
-        checkTalent.AddPoint("P09Blue", 0, 130 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
-        checkTalent.AddPoint("P10Blue", 0, 140 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
-        checkTalent.AddPoint("P11Blue", 0, 150 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
-        checkTalent.AddPoint("P12Blue", 0, 170 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
-        checkTalent.AddPoint("P13Blue", 0, 170 / 1920, 0, 1023 / 1080).AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", checkTalentBlueMin);
-        checkTalent.AddPoint("P01White", 0, 60 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
-        checkTalent.AddPoint("P02White", 0, 70 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
-        checkTalent.AddPoint("P03White", 0, 80 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
-        checkTalent.AddPoint("P05White", 0, 90 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
-        checkTalent.AddPoint("P06White", 0, 100 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
-        checkTalent.AddPoint("P07White", 0, 110 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
-        checkTalent.AddPoint("P08White", 0, 120 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
-        checkTalent.AddPoint("P09White", 0, 130 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
-        checkTalent.AddPoint("P10White", 0, 140 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
-        checkTalent.AddPoint("P11White", 0, 150 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
-        checkTalent.AddPoint("P12White", 0, 170 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
-        checkTalent.AddPoint("P13White", 0, 170 / 1920, 0, 1023 / 1080).AddCondition("R", ">", checkTalentWhiteMin).AddCondition("G", ">", checkTalentWhiteMin).AddCondition("B", ">", checkTalentWhiteMin);
-
+        checkTalent.AddPoint("P01Blue", 0, 60 / 1920, 0, 1023 / 1080, condTalentBlue);
+        checkTalent.AddPoint("P02Blue", 0, 70 / 1920, 0, 1023 / 1080, condTalentBlue);
+        checkTalent.AddPoint("P03Blue", 0, 80 / 1920, 0, 1023 / 1080, condTalentBlue);
+        checkTalent.AddPoint("P05Blue", 0, 90 / 1920, 0, 1023 / 1080, condTalentBlue);
+        checkTalent.AddPoint("P06Blue", 0, 100 / 1920, 0, 1023 / 1080, condTalentBlue);
+        checkTalent.AddPoint("P07Blue", 0, 110 / 1920, 0, 1023 / 1080, condTalentBlue);
+        checkTalent.AddPoint("P08Blue", 0, 120 / 1920, 0, 1023 / 1080, condTalentBlue);
+        checkTalent.AddPoint("P09Blue", 0, 130 / 1920, 0, 1023 / 1080, condTalentBlue);
+        checkTalent.AddPoint("P10Blue", 0, 140 / 1920, 0, 1023 / 1080, condTalentBlue);
+        checkTalent.AddPoint("P11Blue", 0, 150 / 1920, 0, 1023 / 1080, condTalentBlue);
+        checkTalent.AddPoint("P12Blue", 0, 170 / 1920, 0, 1023 / 1080, condTalentBlue);
+        checkTalent.AddPoint("P13Blue", 0, 170 / 1920, 0, 1023 / 1080, condTalentBlue);
+        checkTalent.AddPoint("P01White", 0, 60 / 1920, 0, 1023 / 1080, condTalentWhite);
+        checkTalent.AddPoint("P02White", 0, 70 / 1920, 0, 1023 / 1080, condTalentWhite);
+        checkTalent.AddPoint("P03White", 0, 80 / 1920, 0, 1023 / 1080, condTalentWhite);
+        checkTalent.AddPoint("P05White", 0, 90 / 1920, 0, 1023 / 1080, condTalentWhite);
+        checkTalent.AddPoint("P06White", 0, 100 / 1920, 0, 1023 / 1080, condTalentWhite);
+        checkTalent.AddPoint("P07White", 0, 110 / 1920, 0, 1023 / 1080, condTalentWhite);
+        checkTalent.AddPoint("P08White", 0, 120 / 1920, 0, 1023 / 1080, condTalentWhite);
+        checkTalent.AddPoint("P09White", 0, 130 / 1920, 0, 1023 / 1080, condTalentWhite);
+        checkTalent.AddPoint("P10White", 0, 140 / 1920, 0, 1023 / 1080, condTalentWhite);
+        checkTalent.AddPoint("P11White", 0, 150 / 1920, 0, 1023 / 1080, condTalentWhite);
+        checkTalent.AddPoint("P12White", 0, 170 / 1920, 0, 1023 / 1080, condTalentWhite);
+        checkTalent.AddPoint("P13White", 0, 170 / 1920, 0, 1023 / 1080, condTalentWhite);
     };
 
     // Update active scene (detect if in menu / game / ...)

@@ -29,6 +29,11 @@ namespace LogitechLedTools
             return checks[name];
         }
 
+        public ScreenCheckerConditionList CreateConditionList()
+        {
+            return new ScreenCheckerConditionList();
+        }
+
         public void DebugCheck(string name)
         {
             GetCheck(name).Debug(name);

@@ -92,47 +92,62 @@ namespace LogitechLedTools
         }
     }
 
+    class ScreenCheckerConditionList : List<ScreenCheckerCondition>
+    {
+
+        public ScreenCheckerConditionList AddCondition(byte a, string compare, byte b)
+        {
+            Add(new ScreenCheckerCondition(a, compare, b));
+            return this;
+        }
+
+        public ScreenCheckerConditionList AddCondition(string a, string compare, byte b)
+        {
+            Add(new ScreenCheckerCondition(a, compare, b));
+            return this;
+        }
+
+        public ScreenCheckerConditionList AddCondition(byte a, string compare, string b)
+        {
+            Add(new ScreenCheckerCondition(a, compare, b));
+            return this;
+        }
+
+        public ScreenCheckerConditionList AddCondition(string a, string compare, string b)
+        {
+            Add(new ScreenCheckerCondition(a, compare, b));
+            return this;
+        }
+
+    }
+
     class ScreenCheckerPoint
     {
         public int leftPixels { get; set; }
         public double leftRatio { get; set; }
         public int topPixels { get; set; }
         public double topRatio { get; set; }
-        public IList<ScreenCheckerCondition> conditions { get; set; }
+        public ScreenCheckerConditionList conditions { get; set; }
         public bool result { get; set; }
 
         public ScreenCheckerPoint(int xPixel, double xRatio, int yPixel, double yRatio)
         {
-            leftPixels = xPixel;
-            leftRatio = xRatio;
-            topPixels = yPixel;
-            topRatio = yRatio;
-            conditions = new List<ScreenCheckerCondition>();
-            result = false;
+            this.leftPixels = xPixel;
+            this.leftRatio = xRatio;
+            this.topPixels = yPixel;
+            this.topRatio = yRatio;
+            this.conditions = new ScreenCheckerConditionList();
+            this.result = false;
         }
 
-        public ScreenCheckerPoint AddCondition(byte a, string compare, byte b)
+        public ScreenCheckerPoint(int xPixel, double xRatio, int yPixel, double yRatio, ScreenCheckerConditionList conditions)
         {
-            conditions.Add(new ScreenCheckerCondition(a, compare, b));
-            return this;
-        }
-
-        public ScreenCheckerPoint AddCondition(string a, string compare, byte b)
-        {
-            conditions.Add(new ScreenCheckerCondition(a, compare, b));
-            return this;
-        }
-
-        public ScreenCheckerPoint AddCondition(byte a, string compare, string b)
-        {
-            conditions.Add(new ScreenCheckerCondition(a, compare, b));
-            return this;
-        }
-
-        public ScreenCheckerPoint AddCondition(string a, string compare, string b)
-        {
-            conditions.Add(new ScreenCheckerCondition(a, compare, b));
-            return this;
+            this.leftPixels = xPixel;
+            this.leftRatio = xRatio;
+            this.topPixels = yPixel;
+            this.topRatio = yRatio;
+            this.conditions = conditions;
+            this.result = false;
         }
 
         private bool CheckConditions(Color value)
@@ -173,7 +188,7 @@ namespace LogitechLedTools
         public int bottomPixels { get; set; }
         public double bottomRatio { get; set; }
         public bool backwardScan { get; set; }
-        public IList<ScreenCheckerCondition> conditions { get; set; }
+        public ScreenCheckerConditionList conditions { get; set; }
         public double result { get; set; }
 
         public ScreenCheckerBar(int leftPixels, double leftRatio, int topPixels, double topRatio, int rightPixels, double rightRatio, int bottomPixels, double bottomRatio)
@@ -187,8 +202,23 @@ namespace LogitechLedTools
             this.bottomPixels = bottomPixels;
             this.bottomRatio = bottomRatio;
             this.backwardScan = true;
-            conditions = new List<ScreenCheckerCondition>();
-            result = 0;
+            this.conditions = new ScreenCheckerConditionList();
+            this.result = 0;
+        }
+
+        public ScreenCheckerBar(int leftPixels, double leftRatio, int topPixels, double topRatio, int rightPixels, double rightRatio, int bottomPixels, double bottomRatio, ScreenCheckerConditionList conditions)
+        {
+            this.leftPixels = leftPixels;
+            this.leftRatio = leftRatio;
+            this.topPixels = topPixels;
+            this.topRatio = topRatio;
+            this.rightPixels = rightPixels;
+            this.rightRatio = rightRatio;
+            this.bottomPixels = bottomPixels;
+            this.bottomRatio = bottomRatio;
+            this.backwardScan = true;
+            this.conditions = conditions;
+            this.result = 0;
         }
 
         public ScreenCheckerBar(int leftPixels, double leftRatio, int topPixels, double topRatio, int rightPixels, double rightRatio, int bottomPixels, double bottomRatio, bool backwardScan)
@@ -202,34 +232,25 @@ namespace LogitechLedTools
             this.bottomPixels = bottomPixels;
             this.bottomRatio = bottomRatio;
             this.backwardScan = backwardScan;
-            conditions = new List<ScreenCheckerCondition>();
-            result = 0;
+            this.conditions = new ScreenCheckerConditionList();
+            this.result = 0;
         }
 
-        public ScreenCheckerBar AddCondition(byte a, string compare, byte b)
+        public ScreenCheckerBar(int leftPixels, double leftRatio, int topPixels, double topRatio, int rightPixels, double rightRatio, int bottomPixels, double bottomRatio, bool backwardScan, ScreenCheckerConditionList conditions)
         {
-            conditions.Add(new ScreenCheckerCondition(a, compare, b));
-            return this;
+            this.leftPixels = leftPixels;
+            this.leftRatio = leftRatio;
+            this.topPixels = topPixels;
+            this.topRatio = topRatio;
+            this.rightPixels = rightPixels;
+            this.rightRatio = rightRatio;
+            this.bottomPixels = bottomPixels;
+            this.bottomRatio = bottomRatio;
+            this.backwardScan = backwardScan;
+            this.conditions = conditions;
+            this.result = 0;
         }
-
-        public ScreenCheckerBar AddCondition(string a, string compare, byte b)
-        {
-            conditions.Add(new ScreenCheckerCondition(a, compare, b));
-            return this;
-        }
-
-        public ScreenCheckerBar AddCondition(byte a, string compare, string b)
-        {
-            conditions.Add(new ScreenCheckerCondition(a, compare, b));
-            return this;
-        }
-
-        public ScreenCheckerBar AddCondition(string a, string compare, string b)
-        {
-            conditions.Add(new ScreenCheckerCondition(a, compare, b));
-            return this;
-        }
-
+        
         private bool CheckConditions(Color value)
         {
             foreach (ScreenCheckerCondition condition in conditions)
@@ -343,9 +364,21 @@ namespace LogitechLedTools
             return points[name];
         }
 
+        public ScreenCheckerPoint AddPoint(string name, int xPixel, double xRatio, int yPixel, double yRatio, ScreenCheckerConditionList conditions)
+        {
+            points.Add(name, new ScreenCheckerPoint(xPixel, xRatio, yPixel, yRatio, conditions));
+            return points[name];
+        }
+
         public ScreenCheckerBar AddBar(string name, int leftPixels, double leftRatio, int topPixels, double topRatio, int rightPixels, double rightRatio, int bottomPixels, double bottomRatio)
         {
             bars.Add(name, new ScreenCheckerBar(leftPixels, leftRatio, topPixels, topRatio, rightPixels, rightRatio, bottomPixels, bottomRatio));
+            return bars[name];
+        }
+
+        public ScreenCheckerBar AddBar(string name, int leftPixels, double leftRatio, int topPixels, double topRatio, int rightPixels, double rightRatio, int bottomPixels, double bottomRatio, ScreenCheckerConditionList conditions)
+        {
+            bars.Add(name, new ScreenCheckerBar(leftPixels, leftRatio, topPixels, topRatio, rightPixels, rightRatio, bottomPixels, bottomRatio, conditions));
             return bars[name];
         }
 

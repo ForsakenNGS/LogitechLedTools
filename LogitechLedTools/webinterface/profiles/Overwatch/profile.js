@@ -26,50 +26,46 @@
     // Register all checks for this profile
     overwatchProfile.register = function (updater) {
         // Profile box
-        var checkProfileBox = updater.CreateCheck("base_profile_box");
-        checkProfileBox.AddPoint("P1", 0, 1582 / 1920, 0, 34 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 90).AddCondition("G", "<", 90).AddCondition("B", "<", 110);
-        checkProfileBox.AddPoint("P2", 0, 1582 / 1920, 0, 84 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 90).AddCondition("G", "<", 90).AddCondition("B", "<", 110);
-        checkProfileBox.AddPoint("P3", 0, 1864 / 1920, 0, 34 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 90).AddCondition("G", "<", 90).AddCondition("B", "<", 110);
-        checkProfileBox.AddPoint("P4", 0, 1864 / 1920, 0, 84 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 90).AddCondition("G", "<", 90).AddCondition("B", "<", 110);
-        checkProfileBox.AddPoint("P5", 0, 1516 / 1920, 0, 60 / 1080)
+        var condProfileBoxBlue = updater.CreateConditionList()
+            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 140);
+        var condProfileBoxGreen = updater.CreateConditionList()
             .AddCondition("G", ">", "R").AddCondition("G", ">", "B").AddCondition("R", "<", 140).AddCondition("R", ">", 100).AddCondition("G", ">", 245).AddCondition("B", "<", 20);
+        var checkProfileBox = updater.CreateCheck("base_profile_box");
+        checkProfileBox.AddPoint("P1", 0, 1582 / 1920, 0, 34 / 1080, condProfileBox);
+        checkProfileBox.AddPoint("P2", 0, 1582 / 1920, 0, 84 / 1080, condProfileBox);
+        checkProfileBox.AddPoint("P3", 0, 1864 / 1920, 0, 34 / 1080, condProfileBox);
+        checkProfileBox.AddPoint("P4", 0, 1864 / 1920, 0, 84 / 1080, condProfileBox);
+        checkProfileBox.AddPoint("P5", 0, 1516 / 1920, 0, 60 / 1080, condProfileBoxGreen);
         // Overwatch logo
-        var checkLogo = updater.CreateCheck("menu_logo", "Menu");
-        checkLogo.AddPoint("P1", 0, 124 / 1920, 0, 54 / 1080)
+        var condLogoYellow = updater.CreateConditionList()
             .AddCondition("R", ">", "B").AddCondition("G", ">", "B").AddCondition("R", ">", 245).AddCondition("G", "<", 245).AddCondition("B", "<", 200);
-        checkLogo.AddPoint("P2", 0, 328 / 1920, 0, 100 / 1080)
-            .AddCondition("R", ">", "B").AddCondition("G", ">", "B").AddCondition("R", ">", 245).AddCondition("G", "<", 245).AddCondition("B", "<", 200);
-        checkLogo.AddPoint("P3", 0, 328 / 1920, 0, 68 / 1080)
+        var condLogoBlue = updater.CreateConditionList()
             .AddCondition("R", "<", 210).AddCondition("G", "<", 210).AddCondition("B", ">", 210);
+        var checkLogo = updater.CreateCheck("menu_logo", "Menu");
+        checkLogo.AddPoint("P1", 0, 124 / 1920, 0, 54 / 1080, condLogoYellow);
+        checkLogo.AddPoint("P2", 0, 328 / 1920, 0, 100 / 1080, condLogoYellow);
+        checkLogo.AddPoint("P3", 0, 328 / 1920, 0, 68 / 1080, condLogoBlue);
         // Match search box
+        var condMatchSearchBlue = updater.CreateConditionList()
+            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 90).AddCondition("G", "<", 90).AddCondition("B", "<", 110);
         var checkMatchSearch = updater.CreateCheck("menu_match_search", "Menu");
-        checkMatchSearch.AddPoint("P1", 0, 812 / 1920, 0, 34 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 90).AddCondition("G", "<", 90).AddCondition("B", "<", 110);
-        checkMatchSearch.AddPoint("P2", 0, 812 / 1920, 0, 102 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 90).AddCondition("G", "<", 90).AddCondition("B", "<", 110);
-        checkMatchSearch.AddPoint("P3", 0, 1106 / 1920, 0, 34 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 90).AddCondition("G", "<", 90).AddCondition("B", "<", 110);
-        checkMatchSearch.AddPoint("P4", 0, 1106 / 1920, 0, 102 / 1080)
-            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 90).AddCondition("G", "<", 90).AddCondition("B", "<", 110);
+        checkMatchSearch.AddPoint("P1", 0, 812 / 1920, 0, 34 / 1080, condMatchSearchBlue);
+        checkMatchSearch.AddPoint("P2", 0, 812 / 1920, 0, 102 / 1080, condMatchSearchBlue);
+        checkMatchSearch.AddPoint("P3", 0, 1106 / 1920, 0, 34 / 1080, condMatchSearchBlue);
+        checkMatchSearch.AddPoint("P4", 0, 1106 / 1920, 0, 102 / 1080, condMatchSearchBlue);
         // Ultimate check
+        var condUltimateOuter = updater.CreateConditionList()
+            .AddCondition("R", ">", 225).AddCondition("G", ">", 225).AddCondition("B", ">", 245);
         var checkUltimateOuter = updater.CreateCheck("game_ultimate_outer", "Game");
-        checkUltimateOuter.AddPoint("P1", 0, 912 / 1920, 0, 912 / 1080)
-            .AddCondition("R", ">", 225).AddCondition("G", ">", 225).AddCondition("B", ">", 245);
-        checkUltimateOuter.AddPoint("P2", 0, 916 / 1920, 0, 912 / 1080)
-            .AddCondition("R", ">", 225).AddCondition("G", ">", 225).AddCondition("B", ">", 245);
-        checkUltimateOuter.AddPoint("P3", 0, 1004 / 1920, 0, 912 / 1080)
-            .AddCondition("R", ">", 225).AddCondition("G", ">", 225).AddCondition("B", ">", 245);
-        checkUltimateOuter.AddPoint("P4", 0, 1008 / 1920, 0, 912 / 1080)
-            .AddCondition("R", ">", 225).AddCondition("G", ">", 225).AddCondition("B", ">", 245);
+        checkUltimateOuter.AddPoint("P1", 0, 912 / 1920, 0, 912 / 1080, condUltimateOuter);
+        checkUltimateOuter.AddPoint("P2", 0, 916 / 1920, 0, 912 / 1080, condUltimateOuter);
+        checkUltimateOuter.AddPoint("P3", 0, 1004 / 1920, 0, 912 / 1080, condUltimateOuter);
+        checkUltimateOuter.AddPoint("P4", 0, 1008 / 1920, 0, 912 / 1080, condUltimateOuter);
+        var condUltimateInner = updater.CreateConditionList()
+            .AddCondition("R", "<", 225).AddCondition("G", "<", 225).AddCondition("B", "<", 225);
         var checkUltimateInner = updater.CreateCheck("game_ultimate_inner", "Game");
-        checkUltimateInner.AddPoint("P1", 0, 925 / 1920, 0, 910 / 1080)
-            .AddCondition("R", "<", 225).AddCondition("G", "<", 225).AddCondition("B", "<", 225);
-        checkUltimateInner.AddPoint("P2", 0, 992 / 1920, 0, 910 / 1080)
-            .AddCondition("R", "<", 225).AddCondition("G", "<", 225).AddCondition("B", "<", 225);
+        checkUltimateInner.AddPoint("P1", 0, 925 / 1920, 0, 910 / 1080, condUltimateInner);
+        checkUltimateInner.AddPoint("P2", 0, 992 / 1920, 0, 910 / 1080, condUltimateInner);
     };
 
     // Update active scene (detect if in menu / game / ...)

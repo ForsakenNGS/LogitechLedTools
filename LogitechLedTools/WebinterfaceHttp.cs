@@ -281,7 +281,8 @@ namespace LogitechLedTools
                     case "/profileDetails.json":
                         {
                             response.ContentType = "application/json; charset=utf-8";
-                            OutputString(HandleScriptFunction("GetActiveProfileData").AsString(), response);
+                            var name = request.QueryString["name"];
+                            OutputString(HandleScriptFunction("GetProfileData", name).AsString(), response);
                         }
                         break;
                     case "/profileConfig.json":
