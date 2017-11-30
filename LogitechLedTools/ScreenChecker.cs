@@ -287,7 +287,7 @@ namespace LogitechLedTools
             int x;
             if (backwardScan)
             {
-                for (x = barArea.Right - 1; x >= barArea.Left; x--)
+                for (x = barArea.Right - 1; x > barArea.Left; x--)
                 {
                     if (CheckColumn(ref bitmap, x, barArea.Top, barArea.Bottom))
                     {
@@ -305,7 +305,7 @@ namespace LogitechLedTools
                     }
                 }
             }
-            result = Convert.ToDouble(x - barArea.Left) / Convert.ToDouble(barArea.Right - barArea.Left + 1);
+            result = Convert.ToDouble(x - barArea.Left) / Convert.ToDouble(barArea.Right - barArea.Left - 1);
         }
 
         public double GetResult()

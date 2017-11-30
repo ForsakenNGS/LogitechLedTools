@@ -180,6 +180,7 @@ function GetProfileData(name) {
     if (typeof profiles[name] != "undefined") {
         result = profiles[name];
         result.active = (profileActive == name);
+        result.screenshot = "/cache/" + name + ".jpg?nocache=" + GetEngineClock();
     }
     return JSON.stringify(result);
 }

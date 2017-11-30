@@ -5,7 +5,7 @@
             updateGame: 500
         },
         config: {
-            mode: "bars"
+            mode: "full"
         },
         data: {
             scene: "Unknown",
@@ -15,8 +15,11 @@
             dirty: false,
             game: {
                 health: 0,
+                healthRound: 0,
                 mana: 0,
+                manaRound: 0,
                 energy: 0,
+                energyRound: 0,
                 tooltipLastShown: 0,
                 talentAvailable: true,
                 animating: {
@@ -62,11 +65,11 @@
             .AddCondition("R", ">", "B").AddCondition("G", ">", "B").AddCondition("R", ">", 140).AddCondition("G", ">", 140);
         var checkBars = updater.CreateCheck("game_bars", "Game");
         checkBars.AddBar("health", 0, 208 / 1920, 0, 992 / 1080, 0, 414 / 1920, 0, 1010 / 1080, condBarsHealth);
-        checkBars.AddBar("mana", 0, 198 / 1920, 0, 1010 / 1080, 0, 404 / 1920, 0, 1026 / 1080, condBarsMana);
-        checkBars.AddBar("energy", 0, 198 / 1920, 0, 1010 / 1080, 0, 404 / 1920, 0, 1026 / 1080, condBarsEnergy);
+        checkBars.AddBar("mana", 0, 198 / 1920, 0, 1010 / 1080, 0, 402 / 1920, 0, 1026 / 1080, condBarsMana);
+        checkBars.AddBar("energy", 0, 198 / 1920, 0, 1010 / 1080, 0, 402 / 1920, 0, 1026 / 1080, condBarsEnergy);
         // Buff / Healing fountain tooltip
         var condTooltipBack = updater.CreateConditionList()
-            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("B", ">", 40).AddCondition("B", "<", 70);
+            .AddCondition("B", ">", "R").AddCondition("B", ">", "G").AddCondition("R", "<", 30).AddCondition("G", "<", 30).AddCondition("B", ">", 40).AddCondition("B", "<", 70);
         var checkTooltip = updater.CreateCheck("game_tooltip", "Game");
         checkTooltip.AddPoint("P01", 0, 370 / 1920, 0, 1025 / 1080, condTooltipBack);
         checkTooltip.AddPoint("P02", 0, 400 / 1920, 0, 1025 / 1080, condTooltipBack);
@@ -143,9 +146,9 @@
                 hotsProfile.data.game.tooltipLastShown = timeNow;
             }
             if ((timeNow - hotsProfile.data.game.tooltipLastShown) > 1500) {
-                health = updater.GetBarResult("game_bars", "health");
-                mana = updater.GetBarResult("game_bars", "mana");
-                energy = updater.GetBarResult("game_bars", "energy");
+                health = updater.GetBarResult("game_bars", "health") * 100;
+                mana = updater.GetBarResult("game_bars", "mana") * 100;
+                energy = updater.GetBarResult("game_bars", "energy") * 100;
             }
             hotsProfile.updateSceneDetail("Default");
             hotsProfile.updateGameData(
@@ -170,8 +173,11 @@
             || (hotsProfile.data.game.talentAvailable != talentAvailable)) {
             hotsProfile.data.dirty = true;
             hotsProfile.data.game.health = health;
+            hotsProfile.data.game.healthRound = Math.round(health * 10) / 10;
             hotsProfile.data.game.mana = mana;
+            hotsProfile.data.game.manaRound = Math.round(mana * 10) / 10;
             hotsProfile.data.game.energy = energy;
+            hotsProfile.data.game.energyRound = Math.round(energy * 10) / 10;
             hotsProfile.data.game.talentAvailable = talentAvailable;
         }
     };
@@ -191,16 +197,16 @@
             } else if (profileData.scene == "Game") {
                 // Generate status html for webinterface
                 if (profileData.game.health > 0) {
-                    statusHtml += "<strong>Health: " + Math.round(profileData.game.health * 100) + "%</strong><br />";
+                    statusHtml += "<strong>Health: " + Math.round(profileData.game.health) + "%</strong><br />";
                 }
                 if (profileData.game.mana > 0) {
-                    statusHtml += "<strong>Mana: " + Math.round(profileData.game.mana * 100) + "%</strong><br />";
+                    statusHtml += "<strong>Mana: " + Math.round(profileData.game.mana) + "%</strong><br />";
                 }
                 // Update keyboard lightning
                 if (LogitechKeyboard.IsPerKey() && (profileConfig.mode == "bars")) {
                     // Per key lightning
                     // - Health
-                    if ((profileData.game.health > 0.01) && (profileData.game.health < 0.3)) {
+                    if ((profileData.game.health > 0.1) && (profileData.game.health < 25)) {
                         if (!profileData.game.animating.lowHp) {
                             profileData.game.animating.lowHp = true;
                             LogitechKeyboard.SetKeyArea(LogitechKeyboard.GetColor(0, 60, 255), 0, 1, 19, 5);
@@ -222,16 +228,16 @@
                             LogitechKeyboard.StartWaveAnimation(LogitechKeyboard.GetColor(255, 255, 255), LogitechKeyboard.GetColor(0, 0, 0), 1000, 4, 0, 1, 19, 5);
                         }
                     }
-                    LogitechKeyboard.SetKeyBar(KeyBar_F1_F12, LogitechKeyboard.GetColor(0, 255, 0), LogitechKeyboard.GetColor(255, 0, 0), profileData.game.health * 100);
+                    LogitechKeyboard.SetKeyBar(KeyBar_F1_F12, LogitechKeyboard.GetColor(0, 255, 0), LogitechKeyboard.GetColor(255, 0, 0), profileData.game.health);
                     // - Mana / Energy
-                    if (profileData.game.mana > 0.01) {
-                        LogitechKeyboard.SetKeyBar(KeyBar_NUMPAD_BLOCK_A, LogitechKeyboard.GetColor(0, 0, 255), LogitechKeyboard.GetColor(0, 0, 0), profileData.game.mana * 100);
-                    } else if (profileData.game.energy > 0.01) {
-                        LogitechKeyboard.SetKeyBar(KeyBar_NUMPAD_BLOCK_A, LogitechKeyboard.GetColor(255, 255, 0), LogitechKeyboard.GetColor(0, 0, 0), profileData.game.energy * 100);
+                    if (profileData.game.mana > 0.1) {
+                        LogitechKeyboard.SetKeyBar(KeyBar_NUMPAD_BLOCK_A, LogitechKeyboard.GetColor(0, 0, 255), LogitechKeyboard.GetColor(0, 0, 0), profileData.game.mana);
+                    } else if (profileData.game.energy > 0.1) {
+                        LogitechKeyboard.SetKeyBar(KeyBar_NUMPAD_BLOCK_A, LogitechKeyboard.GetColor(255, 255, 0), LogitechKeyboard.GetColor(0, 0, 0), profileData.game.energy);
                     }
                 } else {
                     // Global lightning
-                    if ((profileData.game.health > 0.01) && (profileData.game.health < 0.3)) {
+                    if ((profileData.game.health > 0.1) && (profileData.game.health < 25)) {
                         if (!profileData.game.animating.lowHp) {
                             profileData.game.animating.lowHp = true;
                             LogitechKeyboard.StartWaveAnimation(LogitechKeyboard.GetColor(0, 0, 0), LogitechKeyboard.GetColor(255, 0, 0), 1000, 3);
@@ -253,7 +259,7 @@
                         }
                         if (!profileData.game.animating.talent || (profileData.game.animating.talent < timeNow)) {
                             LogitechKeyboard.SetLighting(LogitechKeyboard.GetColorFade(
-                                profileData.game.health * 2,
+                                profileData.game.health / 50,
                                 LogitechKeyboard.GetColor(255, 0, 0), LogitechKeyboard.GetColor(255, 255, 0), LogitechKeyboard.GetColor(0, 255, 0)
                             ));
                             profileData.game.animating.talent = false;

@@ -1,5 +1,6 @@
 ﻿var updateTimer = null;
 var profileDetailName = null;
+var profileDetailRetrys = 0;
 
 function UtilFormToObject(formData) {
     // Convert form array into object
@@ -16,7 +17,7 @@ function UtilObjectToString(data, indent) {
         indent = "";
     }
     if (typeof data == "object") {
-        result += indent+"{\n";
+        result += "{\n";
         for (var dataName in data) {
             result += indent + "  " + JSON.stringify(dataName) + ": " + UtilObjectToString(data[dataName], indent + "  ")+"\n";
         }
@@ -27,42 +28,79 @@ function UtilObjectToString(data, indent) {
     return result;
 }
 
-function GetWindows(callback) {
-    jQuery.get("/windows.json", function (result) {
-        if (typeof callback == "function") {
-            callback(result);
-        }
-    });
-}
-
-function GetWindowScreenshot(hwnd, callback) {
-    jQuery.get("/screenshot.json?hwnd=" + encodeURIComponent(hwnd), function (result) {
-        if (typeof callback == "function") {
-            callback(result);
-        }
-    });
-}
-
-function GetProfileDetails(name, callback) {
-    jQuery.get("/profileDetails.json?name="+encodeURIComponent(name), function (profileData) {
-        if (typeof profileData.name != "undefined") {
-            if (typeof callback == "function") {
-                callback(profileData);
+function GetWindows(callbackSuccess, callbackFail) {
+    jQuery.ajax({
+        url: "/windows.json",
+        success: function (result) {
+            if (typeof callbackSuccess == "function") {
+                callbackSuccess(result);
+            }
+        },
+        error: function (jqXHR, textStatus, error) {
+            if (typeof callbackFail == "function") {
+                callbackFail(jqXHR, textStatus, error);
             }
         }
     });
 }
 
-function LoadProfile(name, callback) {
-    jQuery.get("/profile.json?name=" + encodeURIComponent(name), function (result) {
-        if (typeof callback == "function") {
-            callback(result);
+function GetWindowScreenshot(hwnd, callbackSuccess, callbackFail) {
+    jQuery.ajax({
+        url: "/screenshot.json?hwnd=" + encodeURIComponent(hwnd),
+        success: function (result) {
+            if (typeof callbackSuccess == "function") {
+                callbackSuccess(result);
+            }
+        },
+        error: function (jqXHR, textStatus, error) {
+            if (typeof callbackFail == "function") {
+                callbackFail(jqXHR, textStatus, error);
+            }
+        }
+    });
+}
+
+function GetProfileDetails(name, callbackSuccess, callbackFail) {
+    jQuery.ajax({
+        url: "/profileDetails.json?name=" + encodeURIComponent(name),
+        success: function (profileData) {
+            if (typeof profileData.name != "undefined") {
+                if (typeof callbackSuccess == "function") {
+                    callbackSuccess(profileData);
+                }
+            } else {
+                if (typeof callbackFail == "function") {
+                    callbackFail(null, null, "Profile not available!");
+                }
+            }
+        },
+        error: function (jqXHR, textStatus, error) {
+            if (typeof callbackFail == "function") {
+                callbackFail(jqXHR, textStatus, error);
+            }
+        }
+    });
+}
+
+function LoadProfile(name, callbackSuccess, callbackFail) {
+    jQuery.ajax({
+        url: "/profile.json?name=" + encodeURIComponent(name),
+        success: function (result) {
+            if (typeof callbackSuccess == "function") {
+                callbackSuccess(result);
+            }
+        },
+        error: function (jqXHR, textStatus, error) {
+            if (typeof callbackFail == "function") {
+                callbackFail(jqXHR, textStatus, error);
+            }
         }
     });
 }
 
 function ShowProfileDetails(name) {
     GetProfileDetails(name, function (profileData) {
+        // Success
         jQuery.get("/profiles/" + encodeURIComponent(profileData.name) + "/details.html", function (content) {
             jQuery("#profileDetail").html(content);
             jQuery("[data-content=profile-config]").submit(function (event) {
@@ -93,7 +131,18 @@ function ShowProfileDetails(name) {
             profileDetailName = name;
             PageSelect("#profileDetail");
             UpdateProfileDetails();
+            profileDetailRetrys = 0;
         });
+    }, function (jqXHR, textStatus, error) {
+        // Error!
+        if (profileDetailRetrys < 3) {
+            profileDetailRetrys++;
+            window.setTimeout(function () {
+                ShowProfileDetails(name);
+            }, 5000);
+        } else {
+            profileDetailRetrys = 0;
+        }
     });
 }
 
@@ -154,7 +203,19 @@ function UpdateUiStart() {
     if (updateTimer == null) {
         updateTimer = window.setInterval(function () { UpdateUi() }, 5000);
     }
-    PageSelect("#profileCards");
+    var pageActive = location.hash.match(/^(#[^\-]+)-?(.*)$/);
+    if (pageActive !== null) {
+        switch (pageActive[1]) {
+            default:
+                PageSelect(pageActive[1]);
+                break;
+            case "#profileDetail":
+                ShowProfileDetails(pageActive[2]);
+                break;
+        }
+    } else {
+        PageSelect("#profileCards");
+    }
 }
 
 function ReadSettings() {
